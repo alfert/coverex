@@ -2,7 +2,8 @@ defmodule Coverex.Task do
     require EEx
 
     def start(compile_path, opts) do
-      Mix.shell.info "Cover compiling modules ... "
+      Mix.shell.info "Coverex compiling modules ... "
+      Mix.shell.info "compile_path is #{inspect compile_path}"
       :cover.start
       :cover.compile_beam_directory(compile_path |> to_char_list)
 
