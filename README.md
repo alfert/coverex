@@ -15,8 +15,8 @@ as part of the regular project settings.
 
 Please use the GitHub issue tracker for 
 
-* [bug reports](#bugs-reports)
-* [submitting pull requests](#pull-requests) 
+* bug reports
+* submitting pull requests
 
 ## License
 
