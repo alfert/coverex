@@ -8,21 +8,20 @@ defmodule Coverex.Task do
       :cover.compile_beam_directory(compile_path |> to_char_list)
 
       if :application.get_env(:cover, :started) != {:ok, true} do
-        output = opts[:output]
-
-        System.at_exit fn(_) ->
-          Mix.shell.info "\nGenerating cover results ... "
-          File.mkdir_p!(output)
-          Enum.each :cover.modules, fn(mod) ->
-            :cover.analyse_to_file(mod, '#{output}/#{mod}.html', [:html])
-          end
-          {mods, funcs} = coverage_data()
-          write_module_overview(mods, output)
-          write_function_overview(funcs, output)
-          generate_assets(output)
-        end
-
         :application.set_env(:cover, :started, true)
+      end        
+        
+      output = opts[:output]
+      fn() ->
+        Mix.shell.info "\nGenerating cover results ... "
+        File.mkdir_p!(output)
+        Enum.each :cover.modules, fn(mod) ->
+          :cover.analyse_to_file(mod, '#{output}/#{mod}.html', [:html])
+        end
+        {mods, funcs} = coverage_data()
+        write_module_overview(mods, output)
+        write_function_overview(funcs, output)
+        generate_assets(output)
       end
     end
     
