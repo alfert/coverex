@@ -5,8 +5,8 @@ defmodule Coverex.Mixfile do
 
   def project do
     [app: :coverex,
-     version: "0.0.1",
-     elixir: "~> 0.13.1",
+     version: "0.0.2-dev",
+     elixir: "~> 0.13.2",
      package: package,
      description: description,
      deps: deps]
