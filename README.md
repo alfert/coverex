@@ -11,13 +11,17 @@ You configure Coverex by adding this line to your `mix.exs` file:
 
 	test_coverage: [tool: Coverex.Task]
 
-as part of the regular project settings. 
+as part of the regular project settings. In addition to that, you need to add Coverex 
+to the dependencies of your project. Coverex is available via `hex.pm`, so need only to 
+add this line to the dependencies in your `mix.exs` file: 
+
+	{:coverex, "~> 0.0.1"}
 
 ## Contributing
 
 Please use the GitHub issue tracker for 
 
-* bug reports
+* bug reports and for
 * submitting pull requests
 
 ## License
