@@ -8,6 +8,7 @@ defmodule Coverex.Mixfile do
      version: "0.0.1",
      elixir: "~> 0.13.1",
      package: package,
+     description: description,
      deps: deps]
   end
 
@@ -29,6 +30,14 @@ defmodule Coverex.Mixfile do
   end
 
   # Hex Package description
+  defp description do
+    """
+    Coverex is an Elixir Coverage tool used by mix. It provides tables with overviews of 
+    module and function coverage data, includings links to annotated source code files. 
+    """
+  end
+
+  # Hex Package definition
   defp package do
     [contributors: ["Klaus Alfert"],
      licenses: ["Apache 2.0"],
