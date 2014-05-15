@@ -35,11 +35,22 @@ defmodule CoverexSourceTest do
   	end
 
   	test "find the proper module" do
-  		{:ok, mod} = generate_mod("X") |> Code.string_to_quoted
+  		{:ok, mod} = generate_mod("X", ["f", "g", "hs"]) |> Code.string_to_quoted
   		IO.inspect mod 
   		alias_modname = Coverex.Source.alias_mod(X)
 
-  		assert [{:defmodule, _, [{:__aliases__, _, [:X]}, _]}] = Coverex.Source.find_mod(mod, alias_modname)
+  		assert {:defmodule, _, [{:__aliases__, _, [:X]}, _]} = Coverex.Source.find_mod(mod, alias_modname)
+  	end
+
+  	test "find all module" do
+  		ms = %{"X" => X, "Y" => Y, "A.B.C" => A.B.C}
+  		{:ok, mod} = generate_mod(Map.keys(ms), ["f", "g", "hs"]) |> Code.string_to_quoted
+  		IO.inspect mod 
+  		as = ms |> Enum.map fn({s, m}) -> Coverex.Source.alias_mod(m) end
+
+  		as |> Enum.each fn(alias_modname) ->
+  			assert [{:defmodule, _, [{:__aliases__, _, alias_modname}, _]}] = 
+  				Coverex.Source.find_mod(mod, alias_modname) end
   	end
 
 

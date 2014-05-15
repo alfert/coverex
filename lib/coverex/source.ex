@@ -12,11 +12,21 @@ defmodule Coverex.Source do
 	@doc """
 	Returns the quoted AST part which defines the given module.
 	"""	
-	def find_mod(qs, mod) when is_list(qs) do
-		Enum.reduce(qs, [], fn(q, acc) -> [find_mod(q, mod) | acc] end)
+	def find_mod(qs, mod) do
+		do_find_mod(qs, mod) |> Enum.reject &(&1 == [])
 	end
-	def find_mod({:defmodule, _, [{:__aliases__, _, mod} | t]} = tree, mod), do: [tree]		
-	def find_mod(any, mod) when is_list(any) or is_tuple(any), do: []
+	## TODO:
+	## Here fails the handling of nested structures. This requires a 
+	## more thought through approach to cope with simple modules,
+	## lists of modules in a file and with nested modules as a later step. 
+	## Perhaps it is enough iterate through the final list and remove
+	## all empty sublists. 
+	def do_find_mod(qs, mod) when is_list(qs) do
+		Enum.reduce(qs, [], fn(q, acc) -> [do_find_mod(q, mod) | acc] end)
+	end
+	def do_find_mod({:defmodule, _, [{:__aliases__, _, mod} | t]} = tree, mod), do: tree
+	def do_find_mod({:__block__, _, list}, mod) when is_list(list), do: do_find_mod(list, mod)
+	def do_find_mod(any, mod) when is_list(any) or is_tuple(any), do: []
 
 
 	@doc "Returns the aliased module name if there any dots in its name"
