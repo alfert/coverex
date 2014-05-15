@@ -23,4 +23,42 @@ defmodule CoverexSourceTest do
   		assert is_binary(source)
   		assert {:defmodule, [line: 1], _} = quoted
   	end
+
+  	test "check 1 alias" do
+  		as = Coverex.Source.alias_mod(X)
+  		assert [:X] = as
+  	end
+
+  	test "check 2 aliases" do
+  		as = Coverex.Source.alias_mod(@mod)
+  		assert [:Coverex, :Source] = as
+  	end
+
+  	test "find the proper module" do
+  		{:ok, mod} = generate_mod("X") |> Code.string_to_quoted
+  		IO.inspect mod 
+  		alias_modname = Coverex.Source.alias_mod(X)
+
+  		assert [{:defmodule, _, [{:__aliases__, _, [:X]}, _]}] = Coverex.Source.find_mod(mod, alias_modname)
+  	end
+
+
+  	@doc """
+  	Generates modules with functions as binaries
+  	"""
+  	def generate_mod(mod), do: generate_mod(mod, [])
+  	def generate_mod(mod, funs) when is_binary(mod) do
+  		fs = funs |> Enum.reduce("", fn(f, acc) -> "def #{f}(), do: :funny\n" <> acc end)
+  		"""
+  		defmodule #{mod} do
+		""" <> fs <>
+		"""  			
+  		end
+  		"""
+  	end
+  	def generate_mod(mods, funs) when is_list(mods) do
+  		mods |> Enum.reduce("", fn(m, acc) -> generate_mod(m, funs) <> acc end)
+  	end
+  	
+
 end
