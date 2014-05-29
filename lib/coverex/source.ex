@@ -29,7 +29,7 @@ defmodule Coverex.Source do
 	def do_find_mod(any, mod) when is_list(any) or is_tuple(any), do: []
 
 
-	@doc "Returns the aliased module name if there any dots in its name"
+	@doc "Returns the aliased module name if there are any dots in its name"
 	def alias_mod(mod) when is_atom(mod) do
 		mod |> atom_to_binary |> String.split(".") |> 
 			Enum.drop(1) |> # first element contains "Elixir" which is not needed here!
