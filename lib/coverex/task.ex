@@ -1,6 +1,15 @@
 defmodule Coverex.Task do
     require EEx
 
+    # TODO: 
+    # 
+    # [ ] test cases for parts if it makes sense
+    # [ ] load the source code for each module similar as in cover.erl
+    #     but do compile from Elixir (e.g. Code.string_to_quoted) and find 
+    #     the lines where the functions and modules are. 
+    #     This allows for nicer source code and link anchors for modules and functions.
+
+
     def start(compile_path, opts) do
       Mix.shell.info "Coverex compiling modules ... "
       Mix.shell.info "compile_path is #{inspect compile_path}"
