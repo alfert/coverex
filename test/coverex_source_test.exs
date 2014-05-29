@@ -34,13 +34,13 @@ defmodule CoverexSourceTest do
   		assert [:Coverex, :Source] = as
   	end
 
-  	# test "find the proper module" do
-  	# 	{:ok, mod} = generate_mod("X", ["f", "g", "hs"]) |> Code.string_to_quoted
-  	# 	IO.inspect mod 
-  	# 	alias_modname = Coverex.Source.alias_mod(X)
+  	test "find the proper module" do
+  		{:ok, mod} = generate_mod("X", ["f", "g", "hs"]) |> Code.string_to_quoted
+  		IO.inspect mod 
+  		alias_modname = Coverex.Source.alias_mod(X)
 
-  	# 	assert {:defmodule, _, [{:__aliases__, _, [:X]}, _]} = Coverex.Source.find_mod(mod, alias_modname)
-  	# end
+  		assert {:defmodule, _, [{:__aliases__, _, [:X]}, _]} = Coverex.Source.find_mod(mod, alias_modname)
+  	end
 
   	test "find all module" do
   		ms = %{"X" => X, "Y" => Y, "A.B.C" => A.B.C}
