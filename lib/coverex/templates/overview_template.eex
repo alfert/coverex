@@ -20,7 +20,7 @@
           </tr>
         </thead>
         <tbody>
-          <%= lc {e, {c, u}} inlist entries, do: overview_entry_template(e, c, u, (1.0 * c/(c + u)*100)) %>
+          <%= for {e, {c, u}} <- entries, do: overview_entry_template(e, c, u, (1.0 * c/(c + u)*100)) %>
         </tbody>
       </table>
     </div>
