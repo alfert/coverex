@@ -10,5 +10,7 @@ before_install:
   - git checkout v0.13.3
   - make 
   - cd ..
-before_script: "export PATH=`pwd`/elixir/bin:$PATH"
+before_script: 
+  - export PATH=`pwd`/elixir/bin:$PATH
+  - mix local.hex --force
 script: "MIX_ENV=test mix do deps.get, deps.compile, test"
