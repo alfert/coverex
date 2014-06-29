@@ -6,7 +6,7 @@ defmodule Coverex.Mixfile do
   def project do
     [app: :coverex,
      version: "0.0.4-dev",
-     elixir: "~> 0.13.3",
+     elixir: "~> 0.14",
      package: package,
      description: description,
      deps: deps]
@@ -26,7 +26,9 @@ defmodule Coverex.Mixfile do
   #
   # Type `mix help deps` for more examples and options
   defp deps do
-    [{:ex_doc, github: "elixir-lang/ex_doc", ref: "4a6391bf2" }]
+    [
+      {:ex_doc, github: "elixir-lang/ex_doc", ref: "ca71b84b9" } # ex_doc for elixir 0.14.0
+    ] 
   end
 
   # Hex Package description

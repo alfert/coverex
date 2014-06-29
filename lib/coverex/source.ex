@@ -31,18 +31,17 @@ defmodule Coverex.Source do
 
 	@doc "Returns the aliased module name if there are any dots in its name"
 	def alias_mod(mod) when is_atom(mod) do
-		mod |> atom_to_binary |> String.split(".") |> 
+		mod |> Atom.to_string|> String.split(".") |> 
 			Enum.drop(1) |> # first element contains "Elixir" which is not needed here!
-			Enum.map &binary_to_atom/1 
+			Enum.map &String.to_atom/1 
 	end
 	
 
 	def get_quoted_source(mod) do
 		path = get_source_path(mod)
 		{:ok, source} = File.read(path)
-		bin_source = String.from_char_data!(source)
-		{:ok, quoted} = Code.string_to_quoted(bin_source)
-		{quoted, bin_source}
+		{:ok, quoted} = Code.string_to_quoted(source)
+		{quoted, source}
 	end
 	
 
