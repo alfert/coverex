@@ -34,24 +34,31 @@ defmodule CoverexSourceTest do
   		assert [:Coverex, :Source] = as
   	end
 
-  	test "find the proper module" do
+  	test "find a single module" do
   		{:ok, mod} = generate_mod("X", ["f", "g", "hs"]) |> Code.string_to_quoted
   		IO.inspect mod 
-  		alias_modname = Coverex.Source.alias_mod(X)
 
-  		assert {:defmodule, _, [{:__aliases__, _, [:X]}, _]} = Coverex.Source.find_mod(mod, alias_modname)
+      mods = Coverex.Source.find_all_mods_and_funs(X)
+      IO.inspect mods
+      assert mods[:X][:X] == 1
   	end
 
-  	test "find all module" do
-  		ms = %{"X" => X, "Y" => Y, "A.B.C" => A.B.C}
-  		{:ok, mod} = generate_mod(Map.keys(ms), ["f", "g", "hs"]) |> Code.string_to_quoted
-  		IO.inspect mod 
-  		as = ms |> Enum.map fn({s, m}) -> Coverex.Source.alias_mod(m) end
+    # test "find all modules and funs" do
+    #   ms = %{"X" => X, "Y" => Y, "A.B.C" => A.B.C}
+    #   funs = ["f", "g", "hs"]
+    #   {:ok, mod} = generate_mod(Map.keys(ms), funs) |> Code.string_to_quoted
+    #   IO.inspect mod 
+    #   all_mods = Coverex.Source.find_all_mods_and_funs(mod)
 
-  		as |> Enum.each fn(alias_modname) ->
-  			assert [{:defmodule, _, [{:__aliases__, _, alias_modname}, _]}] = 
-  				Coverex.Source.find_mod(mod, alias_modname) end
-  	end
+    #   ms |> Dict.values |> Enum.each fn(mod_name) ->
+    #     m = mod_name |> Coverex.Source.alias_mod
+    #     assert %{} = all_mods[m]
+    #     assert is_integer(all_mods[m][m]) 
+    #     funs |> Enum.map(&String.to_atom/1) |> Enum.each fn(f) ->
+    #       assert is_integer(all_mods[m][f])
+    #     end
+    #   end
+    # end
 
 
   	@doc """
