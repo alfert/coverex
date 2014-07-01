@@ -3,30 +3,36 @@ defmodule Coverex.Source do
 	This module provides access to the source code the system to be analyzed.
 	"""
 
+	@type symbol :: :atom
+	@type line_pairs :: %{symbol => pos_integer}
+	@type modules :: %{symbol => line_pairs}
 
-	def funs_in_mod(mod) do
-		{quoted, _source} = get_quoted_source(mod)
-		# iterate over quoted and get all functions and their line numbers 
+	@spec find_all_mods_and_funs(any) :: modules
+	def find_all_mods_and_funs(qs) do
+		acc = %{:Elixir => %{}}
+		do_all_mods(:Elixir, qs, acc)
 	end
 	
-	@doc """
-	Returns the quoted AST part which defines the given module.
-	"""	
-	def find_mod(qs, mod) do
-		do_find_mod(qs, mod) |> Enum.reject &(&1 == [])
+	def do_all_mods(m, {:defmodule, [line: ln], [{:__aliases__, _, mod_name} | body]}, acc) do
+		IO.puts ("+++ Found module #{inspect mod_name}")
+		do_all_mods(mod_name, body, acc |> Map.put(mod_name, %{} |> Map.put(mod_name,ln)))
 	end
-	## TODO:
-	## Here fails the handling of nested structures. This requires a 
-	## more thought through approach to cope with simple modules,
-	## lists of modules in a file and with nested modules as a later step. 
-	## Perhaps it is enough iterate through the final list and remove
-	## all empty sublists. 
-	def do_find_mod(qs, mod) when is_list(qs) do
-		Enum.reduce(qs, [], fn(q, acc) -> [do_find_mod(q, mod) | acc] end)
+	def do_all_mods(m, {:def, [line: ln], [{fun_name, _, _args}, body]}, acc) do
+		IO.puts ("--- Found function #{inspect fun_name}")
+		do_all_mods(m, body, acc |> put_in([m, fun_name], ln))
 	end
-	def do_find_mod({:defmodule, _, [{:__aliases__, _, mod} | t]} = tree, mod), do: tree
-	def do_find_mod({:__block__, _, list}, mod) when is_list(list), do: do_find_mod(list, mod)
-	def do_find_mod(any, mod) when is_list(any) or is_tuple(any), do: []
+	def do_all_mods(m, {:__block__, _, tree}, acc) when is_list(tree), do: do_all_mods(m, tree, acc)
+	def do_all_mods(m, {:do, tree}, acc), do: do_all_mods(m, tree, acc)
+	def do_all_mods(m, [], acc), do: acc
+	def do_all_mods(m, [ head | tree], acc) do
+		# basic recursion of the tree
+		acc1 = do_all_mods(m, head, acc)
+		do_all_mods(m, tree, acc1)
+	end
+	def do_all_mods(m, t, acc) do
+		IO.puts ">>> Found tree #{inspect t}"
+		acc
+	end
 
 
 	@doc "Returns the aliased module name if there are any dots in its name"
