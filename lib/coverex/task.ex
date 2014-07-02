@@ -25,8 +25,8 @@ defmodule Coverex.Task do
         Mix.shell.info "\nGenerating cover results ... "
         File.mkdir_p!(output)
         Enum.each :cover.modules, fn(mod) ->
-          :cover.analyse_to_file(mod, '#{output}/#{mod}.html', [:html])
-          Coverex.Source.analyze_to_html(mod)
+          :cover.analyse_to_file(mod, '#{output}/#{mod}.1.html', [:html])
+          write_html_file(mod, output)
         end
         {mods, funcs} = coverage_data()
         write_module_overview(mods, output)
@@ -35,6 +35,23 @@ defmodule Coverex.Task do
       end
     end
     
+    def write_html_file(mod, output) do
+      {entries, source} = Coverex.Source.analyze_to_html(mod)
+      {:ok, s} = StringIO.open(source)
+      lines = Stream.zip(numbers, IO.stream(s, :line)) |> Stream.map(fn({n, line}) -> 
+        case Map.get(entries, n, nil) do
+          {count, anchor} -> {n, {line, count, anchor}}
+          nil -> {n, {line, nil, nil}}
+        end
+      end)
+      # IO.inspect(lines |> Enum.map(&(&1)))
+      content = source_template(mod, lines)
+      File.write("#{output}/#{mod}.html", content)
+    end
+    
+    # all positive numbers
+    defp numbers(), do: Stream.iterate(1, &(&1+1))
+
     def write_module_overview(modules, output) do
       mods = Enum.map(modules, fn({mod, v}) -> {module_link(mod), v} end)
       content = overview_template("Modules", mods)
@@ -80,8 +97,8 @@ defmodule Coverex.Task do
     templates = [
       overview_template: [:title, :entries],
       overview_entry_template: [:entry, :cov, :uncov, :ratio],
-      source_template: [:title, :entries],
-      source_line_template: [:count, :line, :anchor]
+      source_template: [:title, :lines],
+      source_line_template: [:count, :source, :anchor]
     ]
     Enum.each templates, fn({ name, args }) ->
       filename = Path.expand("templates/#{name}.eex", __DIR__)
