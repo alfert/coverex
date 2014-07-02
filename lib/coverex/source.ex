@@ -7,34 +7,38 @@ defmodule Coverex.Source do
 	@type line_pairs :: %{symbol => pos_integer}
 	@type modules :: %{symbol => line_pairs}
 
+	@doc """
+	Returns all modules and functions together with their start lines as they definend
+	in the given quoted code
+	"""
 	@spec find_all_mods_and_funs(any) :: modules
 	def find_all_mods_and_funs(qs) do
 		acc = %{:Elixir => %{}}
 		do_all_mods(:Elixir, qs, acc)
 	end
 	
-	def do_all_mods(m, {:defmodule, [line: ln], [{:__aliases__, _, mod_name} | body]}, acc) do
+	defp do_all_mods(m, {:defmodule, [line: ln], [{:__aliases__, _, mod_name} | body]}, acc) do
 		# IO.puts ("+++ Found module #{inspect mod_name}")
 		mod = alias_to_atom(mod_name)
 		do_all_mods(mod, body, acc |> Map.put(mod, %{} |> Map.put(mod,ln)))
 	end
-	def do_all_mods(m, {:def, [line: ln], [{fun_name, _, _args}, body]}, acc) do
+	defp do_all_mods(m, {:def, [line: ln], [{fun_name, _, _args}, body]}, acc) do
 		# IO.puts ("--- Found function #{inspect fun_name}")
 		do_all_mods(m, body, acc |> put_in([m, fun_name], ln))
 	end
-	def do_all_mods(m, {:__block__, _, tree}, acc) when is_list(tree), do: do_all_mods(m, tree, acc)
-	def do_all_mods(m, {:do, tree}, acc), do: do_all_mods(m, tree, acc)
-	def do_all_mods(m, t = {t1, t2, t3}, acc) do
+	defp do_all_mods(m, {:__block__, _, tree}, acc) when is_list(tree), do: do_all_mods(m, tree, acc)
+	defp do_all_mods(m, {:do, tree}, acc), do: do_all_mods(m, tree, acc)
+	defp do_all_mods(m, t = {t1, t2, t3}, acc) do
 		# IO.puts "#### Found triple #{inspect t}"
 		acc
 	end
-	def do_all_mods(m, [], acc), do: acc
-	def do_all_mods(m, [ head | tree], acc) do
+	defp do_all_mods(m, [], acc), do: acc
+	defp do_all_mods(m, [ head | tree], acc) do
 		# basic recursion of the tree
 		acc1 = do_all_mods(m, head, acc)
 		do_all_mods(m, tree, acc1)
 	end
-	def do_all_mods(m, t, acc) do
+	defp do_all_mods(m, t, acc) do
 		# IO.puts ">>> Found tree #{inspect t}"
 		acc
 	end
@@ -53,6 +57,8 @@ defmodule Coverex.Source do
 	end
 	
 
+	@doc "Returns the quoted code and the source of a module"
+	@spec get_quoted_source(atom) :: {Mactro.t, binary}
 	def get_quoted_source(mod) do
 		path = get_source_path(mod)
 		{:ok, source} = File.read(path)
@@ -61,10 +67,12 @@ defmodule Coverex.Source do
 	end
 	
 
+	@spec get_source_path(atom) :: {atom, binary}
 	def get_source_path(mod) when is_atom(mod) do
 		get_compile_info(mod) |> Keyword.get :source
 	end
 	
+	@spec get_compile_info(atom) :: [{atom, term}]
 	def get_compile_info(mod) when is_atom(mod) do
 		{^mod, beam, filename} = :code.get_object_code(mod)
 		case :beam_lib.chunks(beam, [:compile_info]) do
