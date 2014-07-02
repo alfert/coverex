@@ -4,61 +4,65 @@ defmodule CoverexSourceTest do
 
 	@mod Coverex.Source
 
-  	test "compile info " do
-  		info = Coverex.Source.get_compile_info(@mod)
+  	# test "compile info " do
+  	# 	info = Coverex.Source.get_compile_info(@mod)
 
-  		assert is_list(info)
-  		assert Keyword.get(info, :options) == [:debug_info]
-  	end
+  	# 	assert is_list(info)
+  	# 	assert Keyword.get(info, :options) == [:debug_info]
+  	# end
 
-  	test "source info" do
-  		source = Coverex.Source.get_source_path(@mod)
+  	# test "source info" do
+  	# 	source = Coverex.Source.get_source_path(@mod)
 
-  		assert is_list(source)
-  	end
+  	# 	assert is_list(source)
+  	# end
 
-  	test "get source and quoted" do
-  		{quoted, source} = Coverex.Source.get_quoted_source(@mod)
+  	# test "get source and quoted" do
+  	# 	{quoted, source} = Coverex.Source.get_quoted_source(@mod)
 
-  		assert is_binary(source)
-  		assert {:defmodule, [line: 1], _} = quoted
-  	end
+  	# 	assert is_binary(source)
+  	# 	assert {:defmodule, [line: 1], _} = quoted
+  	# end
 
   	test "check 1 alias" do
   		as = Coverex.Source.alias_mod(X)
   		assert [:X] = as
+      m = Coverex.Source.alias_to_atom(as)
+      assert X == m
   	end
 
   	test "check 2 aliases" do
   		as = Coverex.Source.alias_mod(@mod)
-  		assert [:Coverex, :Source] = as
+  		assert [:Coverex, :Source] == as
+      m = Coverex.Source.alias_to_atom(as)
+      assert @mod == m
   	end
 
   	test "find a single module" do
-  		{:ok, mod} = generate_mod("X", ["f", "g", "hs"]) |> Code.string_to_quoted
-  		IO.inspect mod 
+  		{:ok, quoted} = generate_mod("X", ["f", "g", "hs"]) |> Code.string_to_quoted
+  		IO.puts "quoted code is \n #{inspect quoted}"
 
-      mods = Coverex.Source.find_all_mods_and_funs(X)
+      mods = Coverex.Source.find_all_mods_and_funs(quoted)
       IO.inspect mods
-      assert mods[:X][:X] == 1
+      assert mods[X][X] == 1
   	end
 
-    # test "find all modules and funs" do
-    #   ms = %{"X" => X, "Y" => Y, "A.B.C" => A.B.C}
-    #   funs = ["f", "g", "hs"]
-    #   {:ok, mod} = generate_mod(Map.keys(ms), funs) |> Code.string_to_quoted
-    #   IO.inspect mod 
-    #   all_mods = Coverex.Source.find_all_mods_and_funs(mod)
+    test "find all modules and funs" do
+      ms = %{"X" => X, "Y" => Y, "A.B.C" => A.B.C}
+      funs = ["f", "g", "hs"]
+      {:ok, mod} = generate_mod(Map.keys(ms), funs) |> Code.string_to_quoted
+      IO.inspect mod 
+      all_mods = Coverex.Source.find_all_mods_and_funs(mod)
+      IO.inspect all_mods 
 
-    #   ms |> Dict.values |> Enum.each fn(mod_name) ->
-    #     m = mod_name |> Coverex.Source.alias_mod
-    #     assert %{} = all_mods[m]
-    #     assert is_integer(all_mods[m][m]) 
-    #     funs |> Enum.map(&String.to_atom/1) |> Enum.each fn(f) ->
-    #       assert is_integer(all_mods[m][f])
-    #     end
-    #   end
-    # end
+      ms |> Dict.values |> Enum.each fn(mod_name) ->
+        assert %{} = all_mods[mod_name]
+        assert is_integer(all_mods[mod_name][mod_name]) 
+        funs |> Enum.map(&String.to_atom/1) |> Enum.each fn(f) ->
+          assert is_integer(all_mods[mod_name][f])
+        end
+      end
+    end
 
 
   	@doc """
