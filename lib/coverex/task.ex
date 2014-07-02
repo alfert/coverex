@@ -26,6 +26,7 @@ defmodule Coverex.Task do
         File.mkdir_p!(output)
         Enum.each :cover.modules, fn(mod) ->
           :cover.analyse_to_file(mod, '#{output}/#{mod}.html', [:html])
+          Coverex.Source.analyze_to_html(mod)
         end
         {mods, funcs} = coverage_data()
         write_module_overview(mods, output)
@@ -47,7 +48,11 @@ defmodule Coverex.Task do
     end
     
     defp module_link(mod), do: "<a href=\"#{mod}.html\">#{mod}</a>"
-    defp module_link(m, f, a), do: "<a href=\"#{m}.html\">#{m}.#{f}/#{a}</a>"
+    defp module_link(m, f, a), do: "<a href=\"#{m}.html##{m}.#{f}/#{a}\">#{m}.#{f}/#{a}</a>"
+
+    def module_anchor({m, f, a}), do: "<a name=\"##{m}.#{f}/#{a}\"></a>"
+    def module_anchor(m), do: "<a name=\"##{m}</a>"
+
 
     @doc """
     Returns detailed coverage data `{mod, mf}` for all modules from the `:cover` application. 
@@ -74,7 +79,9 @@ defmodule Coverex.Task do
     ## Generate templating functions via EEx, borrowd from ex_doc
     templates = [
       overview_template: [:title, :entries],
-      overview_entry_template: [:entry, :cov, :uncov, :ratio]
+      overview_entry_template: [:entry, :cov, :uncov, :ratio],
+      source_template: [:title, :entries],
+      source_line_template: [:count, :line, :anchor]
     ]
     Enum.each templates, fn({ name, args }) ->
       filename = Path.expand("templates/#{name}.eex", __DIR__)
