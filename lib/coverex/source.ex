@@ -6,18 +6,19 @@ defmodule Coverex.Source do
 	@type symbol :: :atom
 	@type line_pairs :: %{symbol => pos_integer}
 	@type modules :: %{symbol => line_pairs}
+	@type line_entries :: %{pos_integer => {pos_integer | nil, binary | nil}}	
 
-
+	@spec analyze_to_html(symbol) :: {line_entries, binary}
 	def analyze_to_html(mod) when is_atom(mod) do
 		{quoted, source} = get_quoted_source(mod)
 		mods = find_all_mods_and_funs(quoted)
 		{:ok, cover} = :cover.analyse(mod, :calls, :line)
 		## cover is [{{mod, line}, count}]
 		# cover |> Enum.each &IO.inspect/1
-		generate_lines(cover, mods[mod])
+		{generate_lines(cover, mods[mod]), source}
 	end
 	
-	@spec generate_lines([{{symbol, pos_integer}, pos_integer}], line_pairs) :: %{pos_integer => {pos_integer | nil, binary | nil}}	
+	@spec generate_lines([{{symbol, pos_integer}, pos_integer}], line_pairs) :: line_entries
 	def generate_lines(cover, mod_entry) do
 		lines_cover = cover |> Enum.map(fn({{_mod, line_nr}, count}) -> {line_nr, {count, nil}} end) |> Enum.into %{}
 		lines_anchors = mod_entry|> Enum.map(fn({sym, line_nr}) -> {line_nr, {nil, Coverex.Task.module_anchor(sym)}} end)
@@ -30,6 +31,7 @@ defmodule Coverex.Source do
 	"""
 	@spec find_all_mods_and_funs(any) :: modules
 	def find_all_mods_and_funs(qs) do
+		# IO.inspect qs
 		acc = %{:Elixir => %{}}
 		do_all_mods(:Elixir, qs, acc)
 	end
@@ -38,6 +40,10 @@ defmodule Coverex.Source do
 		# IO.puts ("+++ Found module #{inspect mod_name}")
 		mod = alias_to_atom(mod_name)
 		do_all_mods(mod, body, acc |> Map.put(mod, %{} |> Map.put(mod,ln)))
+	end
+	defp do_all_mods(m, {:def, [line: ln], [{fun_name, _, nil}, body]}, acc) do
+		# IO.puts ("--- Found function #{inspect fun_name}")
+		do_all_mods(m, body, acc |> put_in([m, {m, fun_name, 0}], ln))
 	end
 	defp do_all_mods(m, {:def, [line: ln], [{fun_name, _, args}, body]}, acc) do
 		# IO.puts ("--- Found function #{inspect fun_name}")
