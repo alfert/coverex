@@ -1,0 +1,6 @@
+<tr><%= if anchor != nil do %>
+	<%= anchor%>
+<%= end %>
+<td class="num"><%= count %></td> 
+<td class="elixir"><%= source %></td>
+</tr>
