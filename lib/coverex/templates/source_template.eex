@@ -3,29 +3,32 @@
   <head>
     <title><%= title %></title>
     <meta charset="utf-8">
-    <link rel="stylesheet" href="css/style.css" type="text/css" media="screen" charset="utf-8" />
-    <link rel="stylesheet" href="css/tablesorter.css" type="text/css" media="screen" charset="utf-8" />
+    <link rel="stylesheet" href="css/source.css" type="text/css" media="screen" charset="utf-8" />
     <script type="text/javascript" charset="utf-8" src="js/jquery.js"></script>
-    <script type="text/javascript" charset="utf-8" src="js/jquery.tablesorter.js"></script>
   </head>
 
   <body>
     <div id="content">
       <h1><%= title %> Coverage Source Code</h1>
 
-      <table cellspacing="1">
+      <table class="source">
         <thead>
           <tr>
-            <th>Covered Lines</th><th>Source Code</th>
+            <th>Line Number</th><th>Covered Lines</th><th>Source Code</th>
           </tr>
         </thead>
         <tbody>
-          <%= for {source, count, anchor} <- lines, do: source_line_template(count, source, anchor) %>
-          <pre>
-          <%= IO.inspect(lines |> Enum.map(&(&1))) %>
-          </pre>
+          <%= for {nr, {source, count, anchor}} <- lines, do: source_line_template(nr, count, source, anchor) %>
         </tbody>
       </table>
+
+    
+    <!-- ein paar Ideen: 
+    	* Tabelle explizit machen mit sehr kleinen Größen
+    	* spezielle Formatierungen (Keywords, ..) mit spans machen.
+    	* Beispiel: https://coveralls.io/files/233825459
+    -->
+
     </div>
   </body>
 </html>

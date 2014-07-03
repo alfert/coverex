@@ -40,17 +40,30 @@ defmodule Coverex.Task do
       {:ok, s} = StringIO.open(source)
       lines = Stream.zip(numbers, IO.stream(s, :line)) |> Stream.map(fn({n, line}) -> 
         case Map.get(entries, n, nil) do
-          {count, anchor} -> {n, {line, count, anchor}}
-          nil -> {n, {line, nil, nil}}
+          {count, anchor} -> {n, {encode_html(line), count, anchor}}
+          nil -> {n, {encode_html(line), nil, nil}}
         end
-      end)
-      # IO.inspect(lines |> Enum.map(&(&1)))
+      end) |> Enum.map(&(&1))
+
+      IO.inspect(lines)
       content = source_template(mod, lines)
       File.write("#{output}/#{mod}.html", content)
     end
     
     # all positive numbers
     defp numbers(), do: Stream.iterate(1, &(&1+1))
+
+    def encode_html("", acc \\ ""), do: acc
+    def encode_html(s, acc) do
+      {first, rest} = String.next_grapheme(s)
+      case first do
+        ">" -> encode_html(rest, acc <> "&gt;") 
+        "<" -> encode_html(rest, acc <> "&lt;")
+        "&" -> encode_html(rest, acc <> "&amp;")
+        nil -> acc
+        any -> encode_html(rest, acc <> any)
+      end
+    end 
 
     def write_module_overview(modules, output) do
       mods = Enum.map(modules, fn({mod, v}) -> {module_link(mod), v} end)
@@ -65,11 +78,14 @@ defmodule Coverex.Task do
     end
     
     defp module_link(mod), do: "<a href=\"#{mod}.html\">#{mod}</a>"
-    defp module_link(m, f, a), do: "<a href=\"#{m}.html##{m}.#{f}/#{a}\">#{m}.#{f}/#{a}</a>"
+    defp module_link(m, f, a), do: "<a href=\"#{m}.html##{m}.#{f}.#{a}\">#{m}.#{f}/#{a}</a>"
 
-    def module_anchor({m, f, a}), do: "<a name=\"##{m}.#{f}/#{a}\"></a>"
-    def module_anchor(m), do: "<a name=\"##{m}</a>"
+    def module_anchor({m, f, a}), do: "<a name=\"##{m}.#{f}.#{a}\"></a>"
+    def module_anchor(m), do: "<a name=\"##{m}\"></a>"
 
+    def cover_class(nil), do: "irrelevant"
+    def cover_class(0), do: "not_covered"
+    def cover_class(n), do: "covered"
 
     @doc """
     Returns detailed coverage data `{mod, mf}` for all modules from the `:cover` application. 
@@ -98,7 +114,7 @@ defmodule Coverex.Task do
       overview_template: [:title, :entries],
       overview_entry_template: [:entry, :cov, :uncov, :ratio],
       source_template: [:title, :lines],
-      source_line_template: [:count, :source, :anchor]
+      source_line_template: [:number, :count, :source, :anchor]
     ]
     Enum.each templates, fn({ name, args }) ->
       filename = Path.expand("templates/#{name}.eex", __DIR__)
