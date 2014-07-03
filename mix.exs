@@ -9,6 +9,7 @@ defmodule Coverex.Mixfile do
      elixir: "~> 0.14",
      package: package,
      description: description,
+     test_coverage: [tool: Coverex.Task],
      deps: deps]
   end
 
@@ -16,8 +17,7 @@ defmodule Coverex.Mixfile do
   #
   # Type `mix help compile.app` for more information
   def application do
-    [ applications: [],
-      mod: {Coverex, []} ]
+    [ applications: []]
   end
 
   # List all dependencies in the format:
