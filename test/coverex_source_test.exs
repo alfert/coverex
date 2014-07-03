@@ -4,25 +4,25 @@ defmodule CoverexSourceTest do
 
 	@mod Coverex.Source
 
-  	# test "compile info " do
-  	# 	info = Coverex.Source.get_compile_info(@mod)
+  	test "compile info " do
+  		info = Coverex.Source.get_compile_info(@mod)
 
-  	# 	assert is_list(info)
-  	# 	assert Keyword.get(info, :options) == [:debug_info]
-  	# end
+  		assert is_list(info)
+  		assert Keyword.get(info, :options) == [:debug_info]
+  	end
 
-  	# test "source info" do
-  	# 	source = Coverex.Source.get_source_path(@mod)
+  	test "source info" do
+  		source = Coverex.Source.get_source_path(@mod)
 
-  	# 	assert is_list(source)
-  	# end
+  		assert is_list(source)
+  	end
 
-  	# test "get source and quoted" do
-  	# 	{quoted, source} = Coverex.Source.get_quoted_source(@mod)
+  	test "get source and quoted" do
+  		{quoted, source} = Coverex.Source.get_quoted_source(@mod)
 
-  	# 	assert is_binary(source)
-  	# 	assert {:defmodule, [line: 1], _} = quoted
-  	# end
+  		assert is_binary(source)
+  		assert {:defmodule, [line: 1], _} = quoted
+  	end
 
   	test "check 1 alias" do
   		as = Coverex.Source.alias_mod(X)
