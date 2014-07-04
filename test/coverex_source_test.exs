@@ -27,31 +27,60 @@ defmodule CoverexSourceTest do
   	test "check 1 alias" do
   		as = Coverex.Source.alias_mod(X)
   		assert [:X] = as
+      m = Coverex.Source.alias_to_atom(as)
+      assert X == m
   	end
 
   	test "check 2 aliases" do
   		as = Coverex.Source.alias_mod(@mod)
-  		assert [:Coverex, :Source] = as
+  		assert [:Coverex, :Source] == as
+      m = Coverex.Source.alias_to_atom(as)
+      assert @mod == m
   	end
 
-  	# test "find the proper module" do
-  	# 	{:ok, mod} = generate_mod("X", ["f", "g", "hs"]) |> Code.string_to_quoted
-  	# 	IO.inspect mod 
-  	# 	alias_modname = Coverex.Source.alias_mod(X)
+  	test "find a single module" do
+  		{:ok, quoted} = generate_mod("X", ["f", "g", "hs"]) |> Code.string_to_quoted
+  		# IO.puts "quoted code is \n #{inspect quoted}"
 
-  	# 	assert {:defmodule, _, [{:__aliases__, _, [:X]}, _]} = Coverex.Source.find_mod(mod, alias_modname)
-  	# end
-
-  	test "find all module" do
-  		ms = %{"X" => X, "Y" => Y, "A.B.C" => A.B.C}
-  		{:ok, mod} = generate_mod(Map.keys(ms), ["f", "g", "hs"]) |> Code.string_to_quoted
-  		IO.inspect mod 
-  		as = ms |> Enum.map fn({s, m}) -> Coverex.Source.alias_mod(m) end
-
-  		as |> Enum.each fn(alias_modname) ->
-  			assert [{:defmodule, _, [{:__aliases__, _, alias_modname}, _]}] = 
-  				Coverex.Source.find_mod(mod, alias_modname) end
+      mods = Coverex.Source.find_all_mods_and_funs(quoted)
+      # IO.inspect mods
+      assert mods[X][X] == 1
   	end
+
+    test "find all modules and funs" do
+      ms = %{"X" => X, "Y" => Y, "A.B.C" => A.B.C}
+      funs = [{X, :f, 0}, {X, :g, 0}, {X, :hs, 0}]
+      {:ok, mod} = generate_mod(Map.keys(ms), funs) |> Code.string_to_quoted
+      # IO.inspect mod 
+      all_mods = Coverex.Source.find_all_mods_and_funs(mod)
+      # IO.inspect all_mods 
+
+      ms |> Dict.values |> Enum.each fn(mod_name) ->
+        assert %{} = all_mods[mod_name]
+        assert is_integer(all_mods[mod_name][mod_name]) 
+        funs |> # Enum.map(&String.to_atom/1) |> 
+          Enum.each fn({_m, f, a}) ->
+            # IO.puts "f = #{inspect f}"
+            assert is_integer(all_mods[mod_name][{mod_name, f, a}])
+          end
+      end
+    end
+
+    test "generate line entries" do
+      m = [{X, 1}, 
+        {{X, :f, 2}, 5}, 
+        {{X, :g, 0}, 9}] |> 
+          Enum.into %{}
+      cover = [{{X, 5}, 1}, {{X, 6}, 1}, {{X, 7}, 1}, {{X, 9}, 3}]
+      lines = Coverex.Source.generate_lines(cover, m)
+
+      f_link = Coverex.Task.module_anchor({X, :f, 2})
+      # IO.puts "Lines = #{inspect lines}"
+      assert %{} = lines
+      assert {1, f_link} == lines[5]
+      assert {1, nil} = lines[6]
+    end
+    
 
 
   	@doc """
@@ -59,7 +88,7 @@ defmodule CoverexSourceTest do
   	"""
   	def generate_mod(mod), do: generate_mod(mod, [])
   	def generate_mod(mod, funs) when is_binary(mod) do
-  		fs = funs |> Enum.reduce("", fn(f, acc) -> "def #{f}(), do: :funny\n" <> acc end)
+  		fs = funs |> Enum.reduce("", fn(f, acc) -> make_fun(f) <> acc end)
   		"""
   		defmodule #{mod} do
 		""" <> fs <>
@@ -71,5 +100,8 @@ defmodule CoverexSourceTest do
   		mods |> Enum.reduce("", fn(m, acc) -> generate_mod(m, funs) <> acc end)
   	end
   	
+    defp make_fun({_, f, 0}), do: "def #{f}(), do: :funny0\n"
+    defp make_fun({_, f, args}), do: "def #{f}(#{1..args |> Enum.map_join(",", &("args#{&1}"))}), do: :funny#{args}\n"
+    defp make_fun(f), do: "def #{f}(), do: :funny_0\n"
 
 end

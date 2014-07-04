@@ -1,0 +1,83 @@
+body {
+  padding: 0 20px;
+  font-family: "Lucida Sans", "Lucida Grande", Verdana, Arial, sans-serif;
+  font-size: 13px;
+}
+
+body.frames { padding: 0 5px; }
+
+h1 { font-size: 25px; border-top: 0px; margin-top: 0; padding-top: 4px; }
+h1 small { color: #888; font-size: 18px }
+
+h2 {
+  padding: 0;
+  padding-bottom: 3px;
+  border-bottom: 1px #aaa solid;
+  font-size: 1.4em;
+  margin: 1.8em 0 0.5em;
+}
+
+.clear { clear: both; }
+
+table {
+  border: 1px solid #aaaaaa;
+  border-collapse: collapse;
+  margin-top: 1em;
+}
+
+table tr:nth-child(odd) { background: #f0f0f0; }
+table tr:nth-child(even) { background: #fafafa; }
+
+table th {
+  background: #fafafa;
+}
+
+table th {
+  border: 1px solid #dddddd;
+  padding: 0.4em 1em 0.4em 0.4em;
+}
+
+/* Coverage sources */
+table.source td.elixir {
+  font-size: 12px;
+  border: 0px; // solid #dddddd;
+  padding: 0px; // 0.4em 1em 0.4em 0.4em;
+  margin: 0px;
+}
+
+tr.source {
+  font-size: 12px;
+  border: 0px;
+  padding: 0px;
+  margin: 0px;
+}
+td.num {
+  text-align: right;
+  font-size: 12px;
+  border: 0px;
+  padding: 0px;
+  margin-right: 10px;
+  margin-left: 10px;
+  margin-top: 0px;
+  margin-bottom: 0px;
+}
+pre {
+  font-size: 12px;
+  border: 0px;
+  padding: 0px;
+  margin: 0px;
+}
+
+pre.covered {
+  background: lightgreen;
+}
+
+pre.not_covered {
+  background: red;
+  color: white;
+}
+
+pre.irrelevant {
+  background: white;
+}
+

@@ -3,53 +3,99 @@ defmodule Coverex.Source do
 	This module provides access to the source code the system to be analyzed.
 	"""
 
+	@type symbol :: :atom
+	@type line_pairs :: %{symbol => pos_integer}
+	@type modules :: %{symbol => line_pairs}
+	@type line_entries :: %{pos_integer => {pos_integer | nil, binary | nil}}	
 
-	def funs_in_mod(mod) do
-		{quoted, _source} = get_quoted_source(mod)
-		# iterate over quoted and get all functions and their line numbers 
+	@spec analyze_to_html(symbol) :: {line_entries, binary}
+	def analyze_to_html(mod) when is_atom(mod) do
+		{quoted, source} = get_quoted_source(mod)
+		mods = find_all_mods_and_funs(quoted)
+		{:ok, cover} = :cover.analyse(mod, :calls, :line)
+		## cover is [{{mod, line}, count}]
+		# cover |> Enum.each &IO.inspect/1
+		{generate_lines(cover, mods[mod]), source}
 	end
 	
+	@spec generate_lines([{{symbol, pos_integer}, pos_integer}], line_pairs) :: line_entries
+	def generate_lines(cover, mod_entry) do
+		lines_cover = cover |> Enum.map(fn({{_mod, line_nr}, count}) -> {line_nr, {count, nil}} end) |> Enum.into %{}
+		lines_anchors = mod_entry|> Enum.map(fn({sym, line_nr}) -> {line_nr, {nil, Coverex.Task.module_anchor(sym)}} end)
+		lines = Dict.merge(lines_cover, lines_anchors, fn(k, {c, _}, {_, a}) -> {c, a} end)		
+	end
+
 	@doc """
-	Returns the quoted AST part which defines the given module.
-	"""	
-	def find_mod(qs, mod) do
-		do_find_mod(qs, mod) |> Enum.reject &(&1 == [])
+	Returns all modules and functions together with their start lines as they definend
+	in the given quoted code
+	"""
+	@spec find_all_mods_and_funs(any) :: modules
+	def find_all_mods_and_funs(qs) do
+		# IO.inspect qs
+		acc = %{:Elixir => %{}}
+		do_all_mods(:Elixir, qs, acc)
 	end
-	## TODO:
-	## Here fails the handling of nested structures. This requires a 
-	## more thought through approach to cope with simple modules,
-	## lists of modules in a file and with nested modules as a later step. 
-	## Perhaps it is enough iterate through the final list and remove
-	## all empty sublists. 
-	def do_find_mod(qs, mod) when is_list(qs) do
-		Enum.reduce(qs, [], fn(q, acc) -> [do_find_mod(q, mod) | acc] end)
+	
+	defp do_all_mods(m, {:defmodule, [line: ln], [{:__aliases__, _, mod_name} | body]}, acc) do
+		# IO.puts ("+++ Found module #{inspect mod_name}")
+		mod = alias_to_atom(mod_name)
+		do_all_mods(mod, body, acc |> Map.put(mod, %{} |> Map.put(mod,ln)))
 	end
-	def do_find_mod({:defmodule, _, [{:__aliases__, _, mod} | t]} = tree, mod), do: tree
-	def do_find_mod({:__block__, _, list}, mod) when is_list(list), do: do_find_mod(list, mod)
-	def do_find_mod(any, mod) when is_list(any) or is_tuple(any), do: []
+	defp do_all_mods(m, {:def, [line: ln], [{fun_name, _, nil}, body]}, acc) do
+		# IO.puts ("--- Found function #{inspect fun_name}")
+		do_all_mods(m, body, acc |> put_in([m, {m, fun_name, 0}], ln))
+	end
+	defp do_all_mods(m, {:def, [line: ln], [{fun_name, _, args}, body]}, acc) do
+		# IO.puts ("--- Found function #{inspect fun_name}")
+		do_all_mods(m, body, acc |> put_in([m, {m, fun_name, length(args)}], ln))
+	end
+	defp do_all_mods(m, {:__block__, _, tree}, acc) when is_list(tree), do: do_all_mods(m, tree, acc)
+	defp do_all_mods(m, {:do, tree}, acc), do: do_all_mods(m, tree, acc)
+	defp do_all_mods(m, t = {t1, t2, t3}, acc) do
+		# IO.puts "#### Found triple #{inspect t}"
+		acc
+	end
+	defp do_all_mods(m, [], acc), do: acc
+	defp do_all_mods(m, [ head | tree], acc) do
+		# basic recursion of the tree
+		acc1 = do_all_mods(m, head, acc)
+		do_all_mods(m, tree, acc1)
+	end
+	defp do_all_mods(m, t, acc) do
+		# IO.puts ">>> Found tree #{inspect t}"
+		acc
+	end
 
 
 	@doc "Returns the aliased module name if there are any dots in its name"
 	def alias_mod(mod) when is_atom(mod) do
-		mod |> atom_to_binary |> String.split(".") |> 
+		mod |> Atom.to_string|> String.split(".") |> 
 			Enum.drop(1) |> # first element contains "Elixir" which is not needed here!
-			Enum.map &binary_to_atom/1 
+			Enum.map &String.to_atom/1 
+	end
+	
+	@doc "Returns the atom module name based on the alias list"
+	def alias_to_atom(a) when is_list(a) do
+		[:Elixir | a] |> Enum.map_join(".", &Atom.to_string/1) |> String.to_atom
 	end
 	
 
+	@doc "Returns the quoted code and the source of a module"
+	@spec get_quoted_source(atom) :: {Mactro.t, binary}
 	def get_quoted_source(mod) do
 		path = get_source_path(mod)
 		{:ok, source} = File.read(path)
-		bin_source = String.from_char_data!(source)
-		{:ok, quoted} = Code.string_to_quoted(bin_source)
-		{quoted, bin_source}
+		{:ok, quoted} = Code.string_to_quoted(source)
+		{quoted, source}
 	end
 	
 
+	@spec get_source_path(atom) :: {atom, binary}
 	def get_source_path(mod) when is_atom(mod) do
 		get_compile_info(mod) |> Keyword.get :source
 	end
 	
+	@spec get_compile_info(atom) :: [{atom, term}]
 	def get_compile_info(mod) when is_atom(mod) do
 		{^mod, beam, filename} = :code.get_object_code(mod)
 		case :beam_lib.chunks(beam, [:compile_info]) do
