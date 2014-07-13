@@ -53,7 +53,8 @@ defmodule Coverex.Task do
     # all positive numbers
     defp numbers(), do: Stream.iterate(1, &(&1+1))
 
-    def encode_html("", acc \\ ""), do: acc
+    def encode_html(s, acc \\ "")
+    def encode_html("", acc), do: acc
     def encode_html(s, acc) do
       {first, rest} = String.next_grapheme(s)
       case first do
