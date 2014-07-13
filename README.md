@@ -15,7 +15,7 @@ as part of the regular project settings. In addition to that, you need to add Co
 to the dependencies of your project. Coverex is available via `hex.pm`, so need only to 
 add this line to the dependencies in your `mix.exs` file: 
 
-	{:coverex, "~> 0.0.4"}
+	{:coverex, "~> 0.0.5"}
 
 ## Contributing
 
