@@ -6,8 +6,11 @@ defmodule Coverex.Mixfile do
   def project do
     [app: :coverex,
      version: "0.0.6-dev",
-     elixir: "~> 0.14",
+     elixir: "~> 0.15",
      package: package,
+     name: "Coverex - Coverage Reports for Elixir",
+     source_url: "https://github.com/alfert/coverex",
+     homepage_url: "https://github.com/alfert/coverex",
      description: description,
      test_coverage: [tool: Coverex.Task],
      deps: deps]
@@ -27,7 +30,8 @@ defmodule Coverex.Mixfile do
   # Type `mix help deps` for more examples and options
   defp deps do
     [
-      {:ex_doc, github: "elixir-lang/ex_doc", ref: "ca71b84b9" } # ex_doc for elixir 0.14.0
+      {:earmark, "~> 0.1", only: :dev},
+      {:ex_doc, "~> 0.5", only: :dev}
     ] 
   end
 
