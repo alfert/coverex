@@ -4,13 +4,13 @@ notifications:
     - klaus.alfert@googlemail.com
 otp_release:
   - 17.0
+env:
+  ELIXIR=v0.15.1
 before_install:
-  - git clone https://github.com/elixir-lang/elixir
-  - cd elixir
-  - git checkout v0.14.2
-  - make 
-  - cd ..
+  - mkdir -p vendor/elixir
+  - wget -q https://github.com/elixir-lang/elixir/releases/download/$ELIXIR/Precompiled.zip && unzip -qq Precompiled.zip -d vendor/elixir
 before_script: 
-  - export PATH=`pwd`/elixir/bin:$PATH
+  - export PATH="$PATH:$PWD/vendor/elixir/bin"
   - mix local.hex --force
+  - mix local.rebar
 script: "MIX_ENV=test mix do deps.get, deps.compile, test"
