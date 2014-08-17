@@ -46,8 +46,8 @@ defmodule Coverex.Mixfile do
   # Hex Package definition
   defp package do
     [contributors: ["Klaus Alfert"],
-     license: ["Apache 2.0"],
-     links: [{"GitHub", "https://github.com/alfert/coverex"}]
+     licenses: ["Apache 2.0"],
+     links: %{"GitHub" => "https://github.com/alfert/coverex"}
     ]
   end
 
