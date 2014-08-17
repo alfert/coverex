@@ -23,6 +23,8 @@ defmodule Coverex.Task do
       output = opts[:output]
       fn() ->
         Mix.shell.info "\nGenerating cover results ... "
+        Application.ensure_started(:logger)
+        Logger.configure(level: :debug)
         File.mkdir_p!(output)
         Enum.each :cover.modules, fn(mod) ->
           :cover.analyse_to_file(mod, '#{output}/#{mod}.1.html', [:html])
@@ -45,7 +47,7 @@ defmodule Coverex.Task do
         end
       end) |> Enum.map(&(&1))
 
-      IO.inspect(lines)
+      # IO.inspect(lines)
       content = source_template(mod, lines)
       File.write("#{output}/#{mod}.html", content)
     end
