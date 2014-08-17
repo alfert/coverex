@@ -1,6 +1,7 @@
 defmodule CoverexSourceTest do
 	
 	use ExUnit.Case
+  require Logger
 
 	@mod Coverex.Source
 
@@ -27,14 +28,14 @@ defmodule CoverexSourceTest do
   	test "check 1 alias" do
   		as = Coverex.Source.alias_mod(X)
   		assert [:X] = as
-      m = Coverex.Source.alias_to_atom(as)
+      m = Coverex.Source.alias_to_atom(as ++ [:Elixir])
       assert X == m
   	end
 
   	test "check 2 aliases" do
   		as = Coverex.Source.alias_mod(@mod)
   		assert [:Coverex, :Source] == as
-      m = Coverex.Source.alias_to_atom(as)
+      m = Coverex.Source.alias_to_atom([:Elixir | as] |> Enum.reverse)
       assert @mod == m
   	end
 
@@ -51,9 +52,9 @@ defmodule CoverexSourceTest do
       ms = %{"X" => X, "Y" => Y, "A.B.C" => A.B.C}
       funs = [{X, :f, 0}, {X, :g, 0}, {X, :hs, 0}]
       {:ok, mod} = generate_mod(Map.keys(ms), funs) |> Code.string_to_quoted
-      # IO.inspect mod 
+      Logger.debug("mod = #{inspect mod}")
       all_mods = Coverex.Source.find_all_mods_and_funs(mod)
-      # IO.inspect all_mods 
+      Logger.debug("all_mods = #{inspect all_mods}") 
 
       ms |> Dict.values |> Enum.each fn(mod_name) ->
         assert %{} = all_mods[mod_name]
@@ -81,7 +82,44 @@ defmodule CoverexSourceTest do
       assert {1, nil} = lines[6]
     end
     
+    test "find Protocols and implementations" do
+      src = """
+      defprotocol Disposable do
+        def dispose(disposable)
+      end
+      defimpl Disposable, for: Function do
+        def dispose(fun), do: fun.()
+      end
+      """
 
+      {:ok, mods} = src |> Code.string_to_quoted
+      # Logger.debug("mods: #{inspect mods}")
+      all_mods = Coverex.Source.find_all_mods_and_funs(mods)
+      # Logger.debug("all mods: #{inspect all_mods}") 
+
+      assert %{} = all_mods[Disposable]
+      assert %{} = all_mods[Disposable.Function]
+      assert is_integer(all_mods[Disposable][Disposable])
+      assert is_integer(all_mods[Disposable.Function][Disposable.Function])
+    end
+
+    test "nested Modules" do
+      src = """
+      defmodule X do
+        defmodule Y do
+          def g(a), do: 1 + a
+        end
+      end
+      """
+      {:ok, mods} = src |> Code.string_to_quoted
+      Logger.debug("mods: #{inspect mods}")
+      all_mods = Coverex.Source.find_all_mods_and_funs(mods)
+      Logger.debug("all mods: #{inspect all_mods}") 
+
+      assert %{} = all_mods[X]
+      assert %{} = all_mods[X.Y]
+      assert is_integer(all_mods[{X.Y, :g, 1}])
+    end
 
   	@doc """
   	Generates modules with functions as binaries
