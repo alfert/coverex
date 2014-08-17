@@ -24,7 +24,7 @@ defmodule Coverex.Task do
       fn() ->
         Mix.shell.info "\nGenerating cover results ... "
         Application.ensure_started(:logger)
-        Logger.configure(level: :debug)
+        Logger.configure(level: :warn)
         File.mkdir_p!(output)
         Enum.each :cover.modules, fn(mod) ->
           :cover.analyse_to_file(mod, '#{output}/#{mod}.1.html', [:html])
