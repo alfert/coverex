@@ -14,14 +14,18 @@ defmodule Coverex.Source do
 		mods = find_all_mods_and_funs(quoted)
 		{:ok, cover} = :cover.analyse(mod, :calls, :line)
 		## cover is [{{mod, line}, count}]
-		# cover |> Enum.each &IO.inspect/1
+		# cover |> Enum.each &Logger.info/1
 		{generate_lines(cover, mods[mod]), source}
 	end
 	
 	@spec generate_lines([{{symbol, pos_integer}, pos_integer}], line_pairs) :: line_entries
+	def generate_lines(cover, nil) do
+		Logger.error "mod_entry is nil and cover = #{inspect cover}"
 	def generate_lines(cover, mod_entry) do
-		lines_cover = cover |> Enum.map(fn({{_mod, line_nr}, count}) -> {line_nr, {count, nil}} end) |> Enum.into %{}
-		lines_anchors = mod_entry|> Enum.map(fn({sym, line_nr}) -> {line_nr, {nil, Coverex.Task.module_anchor(sym)}} end)
+		lines_cover = cover |> Enum.map(fn({{_mod, line_nr}, count}) -> 
+			{line_nr, {count, nil}} end) |> Enum.into %{}
+		lines_anchors = mod_entry|> Enum.map(fn({sym, line_nr}) -> 
+			{line_nr, {nil, Coverex.Task.module_anchor(sym)}} end)
 		lines = Dict.merge(lines_cover, lines_anchors, fn(k, {c, _}, {_, a}) -> {c, a} end)		
 	end
 
@@ -31,28 +35,28 @@ defmodule Coverex.Source do
 	"""
 	@spec find_all_mods_and_funs(any) :: modules
 	def find_all_mods_and_funs(qs) do
-		# IO.inspect qs
+		# Logger.info qs
 		acc = %{:Elixir => %{}}
 		do_all_mods(:Elixir, qs, acc)
 	end
 	
 	defp do_all_mods(m, {:defmodule, [line: ln], [{:__aliases__, _, mod_name} | body]}, acc) do
-		# IO.puts ("+++ Found module #{inspect mod_name}")
+		# Logger.info ("+++ Found module #{inspect mod_name}")
 		mod = alias_to_atom(mod_name)
 		do_all_mods(mod, body, acc |> Map.put(mod, %{} |> Map.put(mod,ln)))
 	end
 	defp do_all_mods(m, {:def, [line: ln], [{fun_name, _, nil}, body]}, acc) do
-		# IO.puts ("--- Found function #{inspect fun_name}")
+		# Logger.info ("--- Found function #{inspect fun_name}")
 		do_all_mods(m, body, acc |> put_in([m, {m, fun_name, 0}], ln))
 	end
 	defp do_all_mods(m, {:def, [line: ln], [{fun_name, _, args}, body]}, acc) do
-		# IO.puts ("--- Found function #{inspect fun_name}")
+		# Logger.info ("--- Found function #{inspect fun_name}")
 		do_all_mods(m, body, acc |> put_in([m, {m, fun_name, length(args)}], ln))
 	end
 	defp do_all_mods(m, {:__block__, _, tree}, acc) when is_list(tree), do: do_all_mods(m, tree, acc)
 	defp do_all_mods(m, {:do, tree}, acc), do: do_all_mods(m, tree, acc)
 	defp do_all_mods(m, t = {t1, t2, t3}, acc) do
-		# IO.puts "#### Found triple #{inspect t}"
+		# Logger.info "#### Found triple #{inspect t}"
 		acc
 	end
 	defp do_all_mods(m, [], acc), do: acc
@@ -62,7 +66,7 @@ defmodule Coverex.Source do
 		do_all_mods(m, tree, acc1)
 	end
 	defp do_all_mods(m, t, acc) do
-		# IO.puts ">>> Found tree #{inspect t}"
+		# Logger.info ">>> Found tree #{inspect t}"
 		acc
 	end
 
