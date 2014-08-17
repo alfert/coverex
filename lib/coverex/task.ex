@@ -1,18 +1,20 @@
 defmodule Coverex.Task do
     require EEx
 
-    # TODO: 
-    # 
-    # [ ] test cases for parts if it makes sense
-    # [ ] load the source code for each module similar as in cover.erl
-    #     but do compile from Elixir (e.g. Code.string_to_quoted) and find 
-    #     the lines where the functions and modules are. 
-    #     This allows for nicer source code and link anchors for modules and functions.
+    @doc """
+    Starts the `Coverex` coverage data generation. An additional option
+    is 
 
+        log: :error
 
+    which sets the log-level of the Elixir Logger application. Default value
+    is `:error`. For debugging purposes, it can be set to :debug. In this case, 
+    the output is quite noisy...
+    """
     def start(compile_path, opts) do
       Mix.shell.info "Coverex compiling modules ... "
       Mix.shell.info "compile_path is #{inspect compile_path}"
+      Mix.shell.info "Options are: #{inspect opts}"
       :cover.start
       :cover.compile_beam_directory(compile_path |> to_char_list)
 
@@ -24,7 +26,7 @@ defmodule Coverex.Task do
       fn() ->
         Mix.shell.info "\nGenerating cover results ... "
         Application.ensure_started(:logger)
-        Logger.configure(level: :warn)
+        Logger.configure(level: Keyword.get(opts, :log, :error))
         File.mkdir_p!(output)
         Enum.each :cover.modules, fn(mod) ->
           :cover.analyse_to_file(mod, '#{output}/#{mod}.1.html', [:html])
