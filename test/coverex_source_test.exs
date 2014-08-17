@@ -133,7 +133,7 @@ defmodule CoverexSourceTest do
 
         defmodule Signal do
           @derive Access
-          defstruct id: nil, # id of the invividual sigal
+          defstruct id: nil, # id of the invividual signal
             source: nil, # pid of the source 
             value: nil # current value of the signal
 
@@ -149,6 +149,7 @@ defmodule CoverexSourceTest do
 
       assert %{} = all_mods[X.Y]
       assert %{} = all_mods[X.Y.Signal]
+      assert %{} = all_mods[Access.X.Y.Signal]
       assert is_integer(all_mods[X.Y][{X.Y, :f, 1}])
     end
 

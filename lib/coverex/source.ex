@@ -12,11 +12,11 @@ defmodule Coverex.Source do
 
 	@spec analyze_to_html(symbol) :: {line_entries, binary}
 	def analyze_to_html(mod) when is_atom(mod) do
-		Logger.error("analyze_to_html of module #{inspect mod}")
+		Logger.debug("analyze_to_html of module #{inspect mod}")
 		{quoted, source} = get_quoted_source(mod)
 		mods = find_all_mods_and_funs(quoted)
 		if mod == Observable.PID, do:
-			Logger.error("Mods and funs found: #{inspect mods}")
+			Logger.debug("Mods and funs found: #{inspect mods}")
 		{:ok, cover} = :cover.analyse(mod, :calls, :line)
 		## cover is [{{mod, line}, count}]
 		# cover |> Enum.each &Logger.info/1
@@ -79,6 +79,13 @@ defmodule Coverex.Source do
 		# Logger.debug ("--- Found function #{inspect fun_name}")
 		m = alias_to_atom(mod_reversed)
 		do_all_mods(m, body, acc |> put_in([m, {m, fun_name, length(args)}], ln))
+	end
+	defp do_all_mods(mod_reversed, {:@, [line: ln], [{:derive, _, [{:__aliases__, _, [:Access]}]}]}, acc) do
+		# derives a new module, where Access is put in front of the module name:
+		# X.Y.Z @derive Access ==> Access.X.Y.Z <<-->> [:Z,:Y,:X,:Access, :Elixir]
+		# This requires that we insert :Access before :Elixir in mod_reversed
+		m = ((mod_reversed |> Enum.take(length(mod_reversed) - 1)) ++ [:Access, :Elixir]) |> alias_to_atom
+		acc |> Map.put(m, %{} |> Map.put(m, ln))
 	end
 	defp do_all_mods(m, {:__block__, _, tree}, acc) when is_list(tree), do: do_all_mods(m, tree, acc)
 	defp do_all_mods(m, {:do, tree}, acc), do: do_all_mods(m, tree, acc)
