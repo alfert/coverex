@@ -15,7 +15,14 @@ as part of the regular project settings. In addition to that, you need to add Co
 to the dependencies of your project. Coverex is available via `hex.pm`, so need only to 
 add this line to the dependencies in your `mix.exs` file: 
 
-	{:coverex, "~> 0.0.6", only: :test}
+	{:coverex, "~> 0.0.7", only: :test}
+
+For debugging purposes, the log level can be set as addition to the `tool` option. The default
+value is `:error`. To set the log level to `:debug` you use this line in your `mix.exs` file: 
+
+	test_coverage: [tool: Coverex.Task, log: :debug]
+
+The usual log levels of `Logger` application of Elixir are available. 
 
 ## Contributing
 
