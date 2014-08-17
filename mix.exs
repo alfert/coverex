@@ -20,7 +20,7 @@ defmodule Coverex.Mixfile do
   #
   # Type `mix help compile.app` for more information
   def application do
-    [ applications: []]
+    [ applications: [:logger]]
   end
 
   # List all dependencies in the format:
