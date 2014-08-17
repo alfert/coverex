@@ -21,6 +21,8 @@ defmodule Coverex.Source do
 	@spec generate_lines([{{symbol, pos_integer}, pos_integer}], line_pairs) :: line_entries
 	def generate_lines(cover, nil) do
 		Logger.error "mod_entry is nil and cover = #{inspect cover}"
+		%{}
+	end
 	def generate_lines(cover, mod_entry) do
 		lines_cover = cover |> Enum.map(fn({{_mod, line_nr}, count}) -> 
 			{line_nr, {count, nil}} end) |> Enum.into %{}
