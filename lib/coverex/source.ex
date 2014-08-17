@@ -33,7 +33,7 @@ defmodule Coverex.Source do
 			{line_nr, {count, nil}} end) |> Enum.into %{}
 		lines_anchors = mod_entry|> Enum.map(fn({sym, line_nr}) -> 
 			{line_nr, {nil, Coverex.Task.module_anchor(sym)}} end)
-		lines = Dict.merge(lines_cover, lines_anchors, fn(k, {c, _}, {_, a}) -> {c, a} end)		
+		_lines = Dict.merge(lines_cover, lines_anchors, fn(_k, {c, _}, {_, a}) -> {c, a} end)		
 	end
 
 	@doc """
@@ -62,7 +62,7 @@ defmodule Coverex.Source do
 		mod = alias_to_atom(mod_alias)
 		do_all_mods(mod_alias, body, acc |> Map.put(mod, %{} |> Map.put(mod,ln)))
 	end
-	defp do_all_mods(mod_reversed, {:defimpl, [line: ln], [{:__aliases__, _, impl_name}, 
+	defp do_all_mods(_mod_reversed, {:defimpl, [line: ln], [{:__aliases__, _, impl_name}, 
 			[for: {:__aliases__, _, mod_name}] | body]}, acc) do
 		Logger.debug "### found defimpl #{inspect impl_name} - #{inspect mod_name}"
 		# impls are always toplevel modules?!
@@ -89,17 +89,17 @@ defmodule Coverex.Source do
 	end
 	defp do_all_mods(m, {:__block__, _, tree}, acc) when is_list(tree), do: do_all_mods(m, tree, acc)
 	defp do_all_mods(m, {:do, tree}, acc), do: do_all_mods(m, tree, acc)
-	defp do_all_mods(m, t = {t1, t2, t3}, acc) do
+	defp do_all_mods(_m, t = {_t1, _t2, _t3}, acc) do
 		Logger.debug "#### Found triple #{inspect t}"
 		acc
 	end
-	defp do_all_mods(m, [], acc), do: acc
+	defp do_all_mods(_m, [], acc), do: acc
 	defp do_all_mods(m, [ head | tree], acc) do
 		# basic recursion of the tree
 		acc1 = do_all_mods(m, head, acc)
 		do_all_mods(m, tree, acc1)
 	end
-	defp do_all_mods(m, t, acc) do
+	defp do_all_mods(_m, t, acc) do
 		Logger.debug ">>> Found tree #{inspect t}"
 		acc
 	end
@@ -135,7 +135,7 @@ defmodule Coverex.Source do
 	
 	@spec get_compile_info(atom) :: [{atom, term}]
 	def get_compile_info(mod) when is_atom(mod) do
-		{^mod, beam, filename} = :code.get_object_code(mod)
+		{^mod, beam, _filename} = :code.get_object_code(mod)
 		case :beam_lib.chunks(beam, [:compile_info]) do
 			{:ok, {^mod, [{:compile_info, compile}]}} -> compile
 			_ -> []

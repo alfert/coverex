@@ -90,7 +90,7 @@ defmodule Coverex.Task do
 
     def cover_class(nil), do: "irrelevant"
     def cover_class(0), do: "not_covered"
-    def cover_class(n), do: "covered"
+    def cover_class(_n), do: "covered"
 
     @doc """
     Returns detailed coverage data `{mod, mf}` for all modules from the `:cover` application. 
