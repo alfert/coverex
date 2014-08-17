@@ -118,7 +118,7 @@ defmodule CoverexSourceTest do
 
       assert %{} = all_mods[X]
       assert %{} = all_mods[X.Y]
-      assert is_integer(all_mods[{X.Y, :g, 1}])
+      assert is_integer(all_mods[X.Y][{X.Y, :g, 1}])
     end
 
   	@doc """

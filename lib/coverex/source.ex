@@ -12,10 +12,11 @@ defmodule Coverex.Source do
 
 	@spec analyze_to_html(symbol) :: {line_entries, binary}
 	def analyze_to_html(mod) when is_atom(mod) do
-		Logger.info("analyze_to_html of module #{inspect mod}")
+		Logger.error("analyze_to_html of module #{inspect mod}")
 		{quoted, source} = get_quoted_source(mod)
 		mods = find_all_mods_and_funs(quoted)
-		Logger.info("Mods and funs found: #{inspect mods}")
+		if mod == Observable.PID, do:
+			Logger.error("Mods and funs found: #{inspect mods}")
 		{:ok, cover} = :cover.analyse(mod, :calls, :line)
 		## cover is [{{mod, line}, count}]
 		# cover |> Enum.each &Logger.info/1
@@ -50,7 +51,7 @@ defmodule Coverex.Source do
 	# First parameter is a reverse list of nested module scopes, i.e. 
 	#    X.Y is encoded as [:Y, :X, :Elixir]
 	defp do_all_mods(mod_reversed, {:defmodule, [line: ln], [{:__aliases__, _, mod_name} | body]}, acc) do
-		# Logger.info ("+++ Found module #{inspect mod_name}")
+		# Logger.debug ("+++ Found module #{inspect mod_name}")
 		mod_alias = Enum.reverse(mod_name) ++ mod_reversed
 		mod = alias_to_atom(mod_alias)
 		do_all_mods(mod_alias, body, acc |> Map.put(mod, %{} |> Map.put(mod,ln)))
@@ -64,17 +65,18 @@ defmodule Coverex.Source do
 	defp do_all_mods(mod_reversed, {:defimpl, [line: ln], [{:__aliases__, _, impl_name}, 
 			[for: {:__aliases__, _, mod_name}] | body]}, acc) do
 		Logger.debug "### found defimpl #{inspect impl_name} - #{inspect mod_name}"
-		mod_alias = Enum.reverse(mod_name) ++ impl_name ++ mod_reversed
+		# impls are always toplevel modules?!
+		mod_alias = Enum.reverse(mod_name) ++ Enum.reverse(impl_name) ++ [:Elixir] # mod_reversed
 		mod = alias_to_atom(mod_alias)
 		do_all_mods(mod_alias, body, acc |> Map.put(mod, %{} |> Map.put(mod,ln)))
 	end
 	defp do_all_mods(mod_reversed, {:def, [line: ln], [{fun_name, _, nil}, body]}, acc) do
-		# Logger.info ("--- Found function #{inspect fun_name}")
+		# Logger.debug ("--- Found function #{inspect fun_name}")
 		m = alias_to_atom(mod_reversed)
 		do_all_mods(m, body, acc |> put_in([m, {m, fun_name, 0}], ln))
 	end
 	defp do_all_mods(mod_reversed, {:def, [line: ln], [{fun_name, _, args}, body]}, acc) do
-		# Logger.info ("--- Found function #{inspect fun_name}")
+		# Logger.debug ("--- Found function #{inspect fun_name}")
 		m = alias_to_atom(mod_reversed)
 		do_all_mods(m, body, acc |> put_in([m, {m, fun_name, length(args)}], ln))
 	end
@@ -103,9 +105,9 @@ defmodule Coverex.Source do
 			Enum.map &String.to_atom/1 
 	end
 	
-	@doc "Returns the atom module name based on the alias list"
+	@doc "Returns the atom module name based on the (reversed) alias list"
 	def alias_to_atom(a) when is_list(a) do
-		a |> IO.inspect |> Enum.reverse |> Enum.map_join(".", &Atom.to_string/1) |> String.to_atom
+		a |> Enum.reverse |> Enum.map_join(".", &Atom.to_string/1) |> String.to_atom
 	end
 	
 
