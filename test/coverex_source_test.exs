@@ -105,8 +105,8 @@ defmodule CoverexSourceTest do
 
     test "nested Modules" do
       src = """
-      defmodule X do
-        defmodule Y do
+      defmodule X.Y do
+        defmodule Z do
           def g(a), do: 1 + a
         end
       end
@@ -116,9 +116,10 @@ defmodule CoverexSourceTest do
       all_mods = Coverex.Source.find_all_mods_and_funs(mods)
       Logger.debug("all mods: #{inspect all_mods}") 
 
-      assert %{} = all_mods[X]
+      refute %{} = all_mods[X]
       assert %{} = all_mods[X.Y]
-      assert is_integer(all_mods[X.Y][{X.Y, :g, 1}])
+      assert %{} = all_mods[X.Y.Z]
+      assert is_integer(all_mods[X.Y.Z][{X.Y.Z, :g, 1}])
     end
 
   	@doc """
