@@ -24,6 +24,14 @@ value is `:error`. To set the log level to `:debug` you use this line in your `m
 
 The usual log levels of `Logger` application of Elixir are available. 
 
+## Running Coverex
+
+If you have configured Coverex as described above you can run Coverex as a drop-in replacement 
+for the regular coverage mechanism of mix: 
+
+    $> mix test --cover
+
+
 ## Contributing
 
 Please use the GitHub issue tracker for 
