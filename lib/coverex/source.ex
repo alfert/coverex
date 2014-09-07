@@ -64,7 +64,8 @@ defmodule Coverex.Source do
 	@doc """
 	Gets a list of all modules within one sourcefile. Calculates the coverage
 	data for each module and merges them together. Returns a mapping of line number 
-	to coverage data for the entire source file.
+	to coverage data for the entire source file. Guarantees that all line numbers up 
+	to the maximun reached line are filled in.
 	"""
 	@spec merge_coverage([{symbol, lines}]) :: line_entries
 	def merge_coverage(mods) do
