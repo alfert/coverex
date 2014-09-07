@@ -20,7 +20,7 @@ defmodule Coverex.Mixfile do
   #
   # Type `mix help compile.app` for more information
   def application do
-    [ applications: [:logger]]
+    [ applications: [:logger, :httpoison]]
   end
 
   # List all dependencies in the format:
@@ -30,8 +30,7 @@ defmodule Coverex.Mixfile do
   # Type `mix help deps` for more examples and options
   defp deps do
     [
-      {:ibrowse, github: "cmullaparthi/ibrowse", tag: "v4.1.0"},
-      {:httpotion, "~> 0.2.0"},
+      {:httpoison, "0.4.2"},
       {:poison, "~> 1.1.0"},
       {:earmark, "~> 0.1", only: :dev},
       {:ex_doc, "~> 0.5", only: :dev},
