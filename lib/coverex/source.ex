@@ -6,9 +6,11 @@ defmodule Coverex.Source do
 	require Logger
 
 	@type symbol :: :atom
+	@type filename :: String.t
 	@type line_pairs :: %{symbol => pos_integer}
 	@type modules :: %{symbol => line_pairs}
-	@type line_entries :: %{pos_integer => {pos_integer | nil, binary | nil}}	
+	@type line_entries :: %{pos_integer => {pos_integer | nil, binary | nil}}
+	@type source_file :: %{:name => String.t, :source => String.t, :coverage => [pos_integer | nil]}
 
 	@spec analyze_to_html(symbol) :: {line_entries, binary}
 	def analyze_to_html(mod) when is_atom(mod) do
@@ -22,7 +24,59 @@ defmodule Coverex.Source do
 		# cover |> Enum.each &Logger.info/1
 		{generate_lines(cover, mods[mod]), source}
 	end
+
+	@doc """
+	Returns the coverall data for the list of mods as Elixir datastructure. 
+	This can be encoded as JSON for uploading to coveralls.
+	"""
+	@spec coveralls_data([symbol]) :: [source_file]
+	def coveralls_data(mods) do
+		sources_and_lines(mods) |>
+			Enum.reduce([], fn({path, cover}, acc) -> 
+				%{name: path, source: File.read!(path), coverage: cover}
+			end)
+	end
 	
+	
+	@doc """
+	This function aggregates the coverage information per module to a coverage
+	information per source file. 
+
+	Takes a list of modules and determines the list of corresponding filenames. 
+	Returns to each filename a map of coverage information for the entire file. 
+	"""
+	@spec sources_and_lines([symbol]) :: [{filename, line_entries}]
+	def sources_and_lines(mods) do
+		# identify all modules of a source file
+		# mod_files is %{path => [symbol]}
+		mod_files = mods |> 
+			Enum.map(fn(mod) -> {mod, get_source_path(mod)} end) |>
+			Enum.reduce(%{}, fn({m, p}, acc) -> 
+				Map.update(acc, p, [m], fn(old) -> [m | old] end) 
+			end)
+		# for each source file, grab all coverage information on line basis,
+		# merge them for all modules and fill up any leaks with nils 
+		mod_files |> Enum.map(fn({path, mods}) -> {path, merge_coverage(mods)} end)
+	end
+	
+	@doc "Expects that all modules are defined within the same source code file."
+	@spec merge_coverage([symbol]) :: line_entries
+	def merge_coverage(mods) do
+		unmerged = mods |> Enum.map(fn(mod) -> 
+			## cover is [{{mod, line}, count}]
+			{:ok, cover} = :cover.analyse(mod, :calls, :line)
+			cover |> Enum.map(fn({{m, line}, count} -> {line, count}) end)
+			end) |> List.flatten
+		# unmerged is [{line, count}]
+		merged = unmerged |> Enum.reduce(%{}, fn ({line, count}, acc) -> 
+			Map.update(acc, line, count, 
+				fn(nil) -> count
+				   (c)  -> count + c end)
+			end)
+		merged 
+	end
+	
+
 	@spec generate_lines([{{symbol, pos_integer}, pos_integer}], line_pairs) :: line_entries
 	def generate_lines(cover, nil) do
 		Logger.error "mod_entry is nil and cover = #{inspect cover}"
@@ -119,7 +173,7 @@ defmodule Coverex.Source do
 	
 
 	@doc "Returns the quoted code and the source of a module"
-	@spec get_quoted_source(atom) :: {Mactro.t, binary}
+	@spec get_quoted_source(atom) :: {Macro.t, binary}
 	def get_quoted_source(mod) do
 		path = get_source_path(mod)
 		{:ok, source} = File.read(path)

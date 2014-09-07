@@ -29,16 +29,27 @@ defmodule Coverex.Task do
         Logger.configure(level: Keyword.get(opts, :log, :error))
         File.mkdir_p!(output)
         Enum.each :cover.modules, fn(mod) ->
-          :cover.analyse_to_file(mod, '#{output}/#{mod}.1.html', [:html])
+          # :cover.analyse_to_file(mod, '#{output}/#{mod}.1.html', [:html])
           write_html_file(mod, output)
         end
         {mods, funcs} = coverage_data()
         write_module_overview(mods, output)
         write_function_overview(funcs, output)
         generate_assets(output)
+        # ask for option
+        write_coveralls(:cover.modules, output)
       end
     end
     
+    def write_coveralls(mods, output) do
+      source = Coverex.Source.coveralls_data(mods)
+      File.write("#{output}/coveralls.json", Poison.encode!(%{
+        :service_name => "travis-ci",
+        :service_job_id => "t-123",
+        :source => source
+        }))
+    end
+
     def write_html_file(mod, output) do
       {entries, source} = Coverex.Source.analyze_to_html(mod)
       {:ok, s} = StringIO.open(source)
