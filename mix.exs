@@ -32,6 +32,7 @@ defmodule Coverex.Mixfile do
     [
       {:ibrowse, github: "cmullaparthi/ibrowse", tag: "v4.1.0"},
       {:httpotion, "~> 0.2.0"},
+      {:poison, "~> 1.1.0"},
       {:earmark, "~> 0.1", only: :dev},
       {:ex_doc, "~> 0.5", only: :dev},
       {:dialyze, "~> 0.1.2", only: :dev}
