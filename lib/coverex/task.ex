@@ -1,6 +1,7 @@
 defmodule Coverex.Task do
     require EEx
 
+    require Logger
     @doc """
     Starts the `Coverex` coverage data generation. An additional option
     is 
@@ -36,18 +37,26 @@ defmodule Coverex.Task do
         write_module_overview(mods, output)
         write_function_overview(funcs, output)
         generate_assets(output)
-        # ask for option
-        write_coveralls(:cover.modules, output)
+        # missing: ask for coveralls option
+        post_coveralls(:cover.modules, output)
       end
     end
     
-    def write_coveralls(mods, output) do
+    def post_coveralls(mods, output) do
+      IO.puts "post to coveralls"
       source = Coverex.Source.coveralls_data(mods)
-      File.write("#{output}/coveralls.json", Poison.encode!(%{
+      body = Poison.encode!(%{
         :service_name => "travis-ci",
         :service_job_id => "t-123",
         :source => source
-        }))
+        })
+      filename = "#{output}/coveralls.json"
+      File.write(filename, body)
+      response = HTTPoison.post("https://coveralls.io/api/v1/jobs", body, 
+        [{"Content-type", "multipart/form-data"}, 
+         {"content-disposition", "form-data; name=\"json_file\""},
+         {"Content-Type", "application/json"}])
+      IO.puts("Response: #{inspect response}")
     end
 
     def write_html_file(mod, output) do
