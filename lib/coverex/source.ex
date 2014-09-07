@@ -35,7 +35,9 @@ defmodule Coverex.Source do
 		mc = mods |> Enum.map(fn(mod) -> {mod, cover_per_mod(mod)} end)
 		sources_and_lines(mc) |>
 			Enum.reduce([], fn({path, cover}, acc) -> 
-				%{name: path, source: File.read!(path), coverage: cover}
+				%{name: path, 
+				  source: File.read!(path), 
+				  coverage: cover |> lines_to_list}
 			end)
 	end
 	
@@ -82,6 +84,12 @@ defmodule Coverex.Source do
 			Map.put_new(acc, index, nil) end)
 	end
 	
+	@spec lines_to_list(line_entries) :: [pos_integer | nil]
+	def lines_to_list(lines) do
+		lines |> Enum.map(fn({_l, count}) -> count end)
+	end
+	
+
 	@spec cover_per_mod(symbol) :: [lines]
 	def cover_per_mod(mod) do
 		## cover is [{{mod, line}, count}]
