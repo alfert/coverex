@@ -50,13 +50,20 @@ defmodule Coverex.Task do
         :service_job_id => "t-123",
         :source => source
         })
-      filename = "#{output}/coveralls.json"
+      filename = "./#{output}/coveralls.json"
       File.write(filename, body)
-      response = HTTPoison.post("https://coveralls.io/api/v1/jobs", body, 
-        [{"Content-type", "multipart/form-data"}, 
-         {"content-disposition", "form-data; name=\"json_file\""},
-         {"Content-Type", "application/json"}])
+      response = send_http("https://coveralls.io/api/v1/jobs", filename, body)
       IO.puts("Response: #{inspect response}")
+    end
+
+    def send_http(url, filename, body) do
+      HTTPoison.post(url, 
+        {:multipart, [
+          {:file, filename, 
+            {"form-data", [{"name", "json_file"}, {"filename", filename}]},
+            [{"Content-Type", "application/json"}]
+          }
+        ]})
     end
 
     def write_html_file(mod, output) do
