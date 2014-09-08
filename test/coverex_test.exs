@@ -15,7 +15,7 @@ defmodule CoverexTest do
 
 	test "is coveralls requested on the commandline?" do
 		conf = Mix.Project.config()
-		IO.inspect conf
+		# IO.inspect conf
 		assert Task.post_to_coveralls?(conf[:test_coverage])
 	end
 
@@ -30,5 +30,12 @@ defmodule CoverexTest do
 
 		env = %{"TRAVIS" => "TRUE"}
 		refute Task.running_travis?(env)
+	end
+
+	test "post to whatever" do
+		conf = Mix.Project.config()
+		assert nil != conf[:test_coverage], "requires to run under `test --cover` "
+
+		assert :ok = Task.post_coveralls([Coverex.Task], ".", "id-123", "http://pastebin.com")
 	end
 end
