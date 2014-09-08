@@ -12,7 +12,7 @@ defmodule Coverex.Mixfile do
      source_url: "https://github.com/alfert/coverex",
      homepage_url: "https://github.com/alfert/coverex",
      description: description,
-     test_coverage: [tool: Coverex.Task],
+     test_coverage: [tool: Coverex.Task, coveralls: true],
      deps: deps]
   end
 
