@@ -6,7 +6,7 @@ defmodule Coverex.Mixfile do
   def project do
     [app: :coverex,
      version: "0.0.8-dev",
-     elixir: "~> 1.0.0-rc1",
+     elixir: "~> 1.0.0-rc2",
      package: package,
      name: "Coverex - Coverage Reports for Elixir",
      source_url: "https://github.com/alfert/coverex",
