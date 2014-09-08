@@ -1,6 +1,7 @@
 defmodule Coverex.Task do
     require EEx
 
+    require Logger
     @doc """
     Starts the `Coverex` coverage data generation. An additional option
     is 
@@ -29,16 +30,64 @@ defmodule Coverex.Task do
         Logger.configure(level: Keyword.get(opts, :log, :error))
         File.mkdir_p!(output)
         Enum.each :cover.modules, fn(mod) ->
-          :cover.analyse_to_file(mod, '#{output}/#{mod}.1.html', [:html])
+          # :cover.analyse_to_file(mod, '#{output}/#{mod}.1.html', [:html])
           write_html_file(mod, output)
         end
         {mods, funcs} = coverage_data()
         write_module_overview(mods, output)
         write_function_overview(funcs, output)
         generate_assets(output)
+        # ask for coveralls option
+        if (running_travis?() and post_to_coveralls?(opts)) do
+          post_coveralls(:cover.modules, output, travis_job_id())
+        end
       end
     end
     
+    @doc "is post to coveralls requested?"
+    def post_to_coveralls?(opts) do
+      Keyword.get(opts, :coveralls, false)
+    end
+    
+    @spec running_travis?(%{String.t => String.t}) :: String.t
+    def running_travis?(env \\ System.get_env()) do
+      case env["TRAVIS"] do 
+        "true" -> true
+        _ -> false
+      end
+    end
+
+    @doc "gets the travis job id out of the environment"
+    @spec travis_job_id(%{String.t => String.t}) :: String.t
+    def travis_job_id(env \\ System.get_env()) do
+      env["TRAVIS_JOB_ID"]      
+    end
+
+    @spec post_coveralls([atom], String.t, String.t) :: :ok
+    def post_coveralls(mods, output, job_id) do
+      IO.puts "post to coveralls"
+      source = Coverex.Source.coveralls_data(mods)
+      body = Poison.encode!(%{
+        :service_name => "travis-ci",
+        :service_job_id => job_id,
+        :source_files => source
+        })
+      filename = "./#{output}/coveralls.json"
+      File.write(filename, body)
+      response = send_http("https://coveralls.io/api/v1/jobs", filename, body)
+      IO.puts("Response: #{inspect response}")
+    end
+
+    def send_http(url, filename, body) do
+      HTTPoison.post(url, 
+        {:multipart, [
+          {:file, filename, 
+            {"form-data", [{"name", "json_file"}, {"filename", filename}]},
+            [{"Content-Type", "application/json"}]
+          }
+        ]})
+    end
+
     def write_html_file(mod, output) do
       {entries, source} = Coverex.Source.analyze_to_html(mod)
       {:ok, s} = StringIO.open(source)

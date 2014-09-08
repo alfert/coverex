@@ -153,6 +153,22 @@ defmodule CoverexSourceTest do
       assert is_integer(all_mods[X.Y][{X.Y, :f, 1}])
     end
 
+    test "Merge coverage data of a single file" do
+      mod = [a: [{2, nil}, {3, 1}, {4, 5}, {5, 2}]]
+      merged = Coverex.Source.merge_coverage(mod)
+      assert %{1=> nil, 2=> nil, 3=> 1, 4=> 5, 5=> 2} == merged
+    end
+
+    test "Merge coverage data of a set of files" do
+      mod = [a: [{2, nil}, {3, 1}, {4, 5}, {5, 2}], 
+             b: [{8, 4}, {9, 2}, {10, 1}]
+          ]
+      merged = Coverex.Source.merge_coverage(mod)
+      assert %{1 => nil, 2=> nil, 3=> 1, 4=> 5, 5=> 2,
+               6 => nil, 7=>nil,
+               8 => 4, 9 => 2, 10 => 1} == merged
+    end
+
   	@doc """
   	Generates modules with functions as binaries
   	"""

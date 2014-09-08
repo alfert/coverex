@@ -6,13 +6,13 @@ defmodule Coverex.Mixfile do
   def project do
     [app: :coverex,
      version: "0.0.8-dev",
-     elixir: "~> 1.0.0-rc1",
+     elixir: "~> 1.0.0-rc2",
      package: package,
      name: "Coverex - Coverage Reports for Elixir",
      source_url: "https://github.com/alfert/coverex",
      homepage_url: "https://github.com/alfert/coverex",
      description: description,
-     test_coverage: [tool: Coverex.Task],
+     test_coverage: [tool: Coverex.Task, coveralls: true],
      deps: deps]
   end
 
@@ -20,7 +20,7 @@ defmodule Coverex.Mixfile do
   #
   # Type `mix help compile.app` for more information
   def application do
-    [ applications: [:logger]]
+    [ applications: [:logger, :httpoison]]
   end
 
   # List all dependencies in the format:
@@ -30,6 +30,8 @@ defmodule Coverex.Mixfile do
   # Type `mix help deps` for more examples and options
   defp deps do
     [
+      {:httpoison, "0.4.2"},
+      {:poison, "~> 1.1.0"},
       {:earmark, "~> 0.1", only: :dev},
       {:ex_doc, "~> 0.5", only: :dev},
       {:dialyze, "~> 0.1.2", only: :dev}
