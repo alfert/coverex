@@ -35,9 +35,9 @@ defmodule Coverex.Source do
 		mc = mods |> Enum.map(fn(mod) -> {mod, cover_per_mod(mod)} end)
 		sources_and_lines(mc) |>
 			Enum.reduce([], fn({path, cover}, acc) -> 
-				%{name: filter_cwd_prefix(path), 
-				  source: File.read!(path), 
-				  coverage: cover |> lines_to_list}
+				[%{:name => filter_cwd_prefix(path), 
+				  :source => File.read!(path), 
+				  :coverage => cover |> lines_to_list} | acc]
 			end)
 	end
 	
