@@ -42,7 +42,8 @@ defmodule Coverex.Mixfile do
   defp description do
     """
     Coverex is an Elixir Coverage tool used by mix. It provides tables with overviews of 
-    module and function coverage data, includings links to annotated source code files. 
+    module and function coverage data, includings links to annotated source code files and
+    supports coveralls.io. 
     """
   end
 
