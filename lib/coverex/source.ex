@@ -35,12 +35,16 @@ defmodule Coverex.Source do
 		mc = mods |> Enum.map(fn(mod) -> {mod, cover_per_mod(mod)} end)
 		sources_and_lines(mc) |>
 			Enum.reduce([], fn({path, cover}, acc) -> 
-				%{name: path, 
+				%{name: filter_cwd_prefix(path), 
 				  source: File.read!(path), 
 				  coverage: cover |> lines_to_list}
 			end)
 	end
 	
+	@doc "Strips the current directory from the path"
+	def filter_cwd_prefix(path) do
+		Path.relative_to_cwd(path)
+	end
 	
 	@doc """
 	This function aggregates the coverage information per module to a coverage
