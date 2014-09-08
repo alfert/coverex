@@ -37,17 +37,39 @@ defmodule Coverex.Task do
         write_module_overview(mods, output)
         write_function_overview(funcs, output)
         generate_assets(output)
-        # missing: ask for coveralls option
-        post_coveralls(:cover.modules, output)
+        # ask for coveralls option
+        if (running_travis?() and post_to_coveralls?(opts)) do
+          post_coveralls(:cover.modules, output, travis_job_id())
+        end
       end
     end
     
-    def post_coveralls(mods, output) do
+    @doc "is post to coveralls requested?"
+    def post_to_coveralls?(opts) do
+      Keyword.get(opts, :coveralls, false)
+    end
+    
+    @spec running_travis?(%{String.t => String.t}) :: String.t
+    def running_travis?(env \\ System.get_env()) do
+      case env["TRAVIS"] do 
+        "true" -> true
+        _ -> false
+      end
+    end
+
+    @doc "gets the travis job id out of the environment"
+    @spec travis_job_id(%{String.t => String.t}) :: String.t
+    def travis_job_id(env \\ System.get_env()) do
+      env["TRAVIS_JOB_ID"]      
+    end
+
+    @spec post_coveralls([atom], String.t, String.t) :: :ok
+    def post_coveralls(mods, output, job_id) do
       IO.puts "post to coveralls"
       source = Coverex.Source.coveralls_data(mods)
       body = Poison.encode!(%{
         :service_name => "travis-ci",
-        :service_job_id => "t-123",
+        :service_job_id => job_id,
         :source => source
         })
       filename = "./#{output}/coveralls.json"
