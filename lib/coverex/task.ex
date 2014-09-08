@@ -70,7 +70,7 @@ defmodule Coverex.Task do
       body = Poison.encode!(%{
         :service_name => "travis-ci",
         :service_job_id => job_id,
-        :source => source
+        :source_files => source
         })
       filename = "./#{output}/coveralls.json"
       File.write(filename, body)
