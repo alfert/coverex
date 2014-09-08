@@ -4,6 +4,8 @@ Coverex is an Elixir Coverage tool used by `mix`. It provides tables with overvi
 module and function coverage data, includings links to annotated source code files. 
 
 [![Build Status](https://travis-ci.org/alfert/coverex.svg?branch=master)](https://travis-ci.org/alfert/coverex)
+[![Coverage Status](https://coveralls.io/repos/alfert/coverex/badge.png)](https://coveralls.io/r/alfert/coverex)
+[![hex.pm version](https://img.shields.io/hexpm/v/httpotion.svg?style=flat)](https://hex.pm/packages/coverex)
 
 ## Configuration
 
