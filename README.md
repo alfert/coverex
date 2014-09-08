@@ -26,6 +26,10 @@ value is `:error`. To set the log level to `:debug` you use this line in your `m
 
 The usual log levels of `Logger` application of Elixir are available. 
 
+If you set the flag `coveralls: true` and you are running on `travis-ci`, the coverage information are sent to (http://coveralls.io). An example configuration would be
+
+	test_coverage: [tool: Coverex.Task, coveralls: true]
+
 ## Running Coverex
 
 If you have configured Coverex as described above you can run Coverex as a drop-in replacement 
