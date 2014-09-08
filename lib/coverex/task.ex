@@ -63,8 +63,8 @@ defmodule Coverex.Task do
       env["TRAVIS_JOB_ID"]      
     end
 
-    @spec post_coveralls([atom], String.t, String.t) :: :ok
-    def post_coveralls(mods, output, job_id) do
+    @spec post_coveralls([atom], String.t, String.t, String.t) :: :ok
+    def post_coveralls(mods, output, job_id, url \\ "https://coveralls.io/api/v1/jobs") do
       IO.puts "post to coveralls"
       source = Coverex.Source.coveralls_data(mods)
       body = Poison.encode!(%{
@@ -74,7 +74,7 @@ defmodule Coverex.Task do
         })
       filename = "./#{output}/coveralls.json"
       File.write(filename, body)
-      response = send_http("https://coveralls.io/api/v1/jobs", filename, body)
+      response = send_http(url, filename, body)
       IO.puts("Response: #{inspect response}")
     end
 
