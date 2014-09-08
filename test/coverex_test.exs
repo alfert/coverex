@@ -18,4 +18,17 @@ defmodule CoverexTest do
 		IO.inspect conf
 		assert Task.post_to_coveralls?(conf[:test_coverage])
 	end
+
+	test "positive check environment for travis" do
+		env = %{"TRAVIS" => "true"}
+		assert Task.running_travis?(env)
+	end
+
+	test "negative check environment for travis" do
+		env = %{"TRAVIS" => "no"}
+		refute Task.running_travis?(env)
+
+		env = %{"TRAVIS" => "TRUE"}
+		refute Task.running_travis?(env)
+	end
 end
