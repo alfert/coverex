@@ -14,5 +14,3 @@ before_script:
   - mix local.hex --force
   - mix local.rebar
 script: "MIX_ENV=test mix do deps.get, deps.compile, test --cover"
-after_script:
-  - cat cover/coveralls.json
