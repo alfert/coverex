@@ -30,8 +30,8 @@ defmodule Coverex.Mixfile do
   # Type `mix help deps` for more examples and options
   defp deps do
     [
-      {:httpoison, "0.4.2"},
-      {:poison, "~> 1.1.0"},
+      {:httpoison, "0.5.0"},
+      {:poison, "~> 1.2.0"},
       {:earmark, "~> 0.1", only: :dev},
       {:ex_doc, "~> 0.5", only: :dev},
       {:dialyze, "~> 0.1.2", only: :dev}
