@@ -78,7 +78,7 @@ defmodule Coverex.Task do
       IO.puts("Response: #{inspect response}")
     end
 
-    def send_http(url, filename, body) do
+    def send_http(url, filename, _body) do
       HTTPoison.post(url, 
         {:multipart, [
           {:file, filename, 

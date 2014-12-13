@@ -98,7 +98,7 @@ defmodule Coverex.Source do
 	def cover_per_mod(mod) do
 		## cover is [{{mod, line}, count}]
 		{:ok, cover} = :cover.analyse(mod, :calls, :line)
-		cover |> Enum.map(fn({{m, line}, count} -> {line, count}) end)		
+		cover |> Enum.map(fn({{_m, line}, count} -> {line, count}) end)		
 	end
 	
 
