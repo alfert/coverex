@@ -18,7 +18,7 @@ as part of the regular project settings. In addition to that, you need to add Co
 to the dependencies of your project. Coverex is available via `hex.pm`, so you need only to 
 add this line to the dependencies in your `mix.exs` file: 
 
-	{:coverex, "~> 1.0.0", only: :test}
+	{:coverex, "~> 1.2.0", only: :test}
 
 For debugging purposes, the log level can be set as addition to the `tool` option. The default
 value is `:error`. To set the log level to `:debug` you use this line in your `mix.exs` file: 
@@ -30,11 +30,6 @@ The usual log levels of `Logger` application of Elixir are available.
 If you set the flag `coveralls: true` and you are running on `travis-ci`, the coverage information are sent to http://coveralls.io . An example configuration would be
 
 	test_coverage: [tool: Coverex.Task, coveralls: true]
-
-In addition to that, you need also to add `httpoison` to the list of your required 
-OTP applications. This could look like: 
-
-	applications: [:kernel , :stdlib, :sasl, :logger, :httpoison]
 
 ## Running Coverex
 
