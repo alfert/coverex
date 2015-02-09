@@ -66,6 +66,7 @@ defmodule Coverex.Task do
     @spec post_coveralls([atom], String.t, String.t, String.t) :: :ok
     def post_coveralls(mods, output, job_id, url \\ "https://coveralls.io/api/v1/jobs") do
       IO.puts "post to coveralls"
+      Application.ensure_all_started(:httpoison)
       source = Coverex.Source.coveralls_data(mods)
       body = Poison.encode!(%{
         :service_name => "travis-ci",
