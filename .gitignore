@@ -3,3 +3,5 @@
 /_build
 /cover
 erl_crash.dump
+/doc
+coveralls.json
