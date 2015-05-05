@@ -11,6 +11,7 @@ defmodule Coverex.Mixfile do
      name: "Coverex - Coverage Reports for Elixir",
      source_url: "https://github.com/alfert/coverex",
      homepage_url: "https://github.com/alfert/coverex",
+     docs: [readme: "README.md"],
      description: description,
      test_coverage: [tool: Coverex.Task, coveralls: true],
      deps: deps]
@@ -33,8 +34,8 @@ defmodule Coverex.Mixfile do
       {:httpoison, "0.6.2"},
       {:poison, "~> 1.3.0"},
       {:earmark, "~> 0.1", only: :dev},
-      {:ex_doc, "~> 0.5", only: :dev},
-      {:dialyze, "~> 0.1.2", only: :dev}
+      {:ex_doc, "~> 0.7.2", only: :dev},
+      {:dialyze, "~> 0.1.4", only: :dev}
     ]
   end
 
