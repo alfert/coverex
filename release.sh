@@ -3,8 +3,8 @@
 set -x
 
 # old is always with -dev
-old="1.3.0"
-new="1.4.0-dev"
+old="1.4.2"
+new="1.4.3-dev"
 # do not set any variables beyond this line
 old_version="$old-dev"
 release_version="$old"
