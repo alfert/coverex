@@ -116,7 +116,7 @@ defmodule CoverexSourceTest do
       all_mods = Coverex.Source.find_all_mods_and_funs(mods)
       Logger.debug("all mods: #{inspect all_mods}") 
 
-      refute %{} = all_mods[X]
+      refute :erlang.is_map(all_mods[X])
       assert %{} = all_mods[X.Y]
       assert %{} = all_mods[X.Y.Z]
       assert is_integer(all_mods[X.Y.Z][{X.Y.Z, :g, 1}])
