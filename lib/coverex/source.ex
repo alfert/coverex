@@ -104,7 +104,9 @@ defmodule Coverex.Source do
 
 	@spec generate_lines([{{symbol, pos_integer}, pos_integer}], line_pairs) :: line_entries
 	def generate_lines(cover, nil) do
-		Logger.error "mod_entry is nil and cover = #{inspect cover}"
+		# This seems to be a situation where Macros are used extensively. 
+		# Does no harm but is annoying.
+		Logger.debug "mod_entry is nil and cover = #{inspect cover}"
 		%{}
 	end
 	def generate_lines(cover, mod_entry) do
