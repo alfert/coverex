@@ -10,7 +10,7 @@ defmodule Coverex.Source do
 	@type line_pairs :: %{symbol => pos_integer}
 	@type modules :: %{symbol => line_pairs}
 	@type line_entries :: %{pos_integer => {pos_integer | nil, binary | nil}}
-	@type source_file :: %{:name => String.t, :source => String.t, :coverage => [pos_integer | nil]}
+	@type source_file :: %{name: String.t, source: String.t, coverage: [pos_integer | nil]}
 	@type lines :: {pos_integer, pos_integer | nil}
 
 	@spec analyze_to_html(symbol) :: {line_entries, binary}
