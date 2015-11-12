@@ -1,0 +1,7 @@
+Coverage Report
+---------------
+Ratio  Covered  Uncovered  Module
+<%= for {e, {c, u}} <- entries, do: 
+  overview_entry_text_template(e, "#{c}", "#{u}", 
+      "#{(1.0 * c/(c + u)*100) |> Float.round 1}") %>
+--------------
