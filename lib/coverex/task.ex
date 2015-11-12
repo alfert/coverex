@@ -37,6 +37,8 @@ defmodule Coverex.Task do
         write_module_overview(mods, output)
         write_function_overview(funcs, output)
         generate_assets(output)
+        # Text overview output
+        puts_module_overview(mods)
         # ask for coveralls option
         if (running_travis?() and post_to_coveralls?(opts)) do
           post_coveralls(:cover.modules, output, travis_job_id())
@@ -126,6 +128,12 @@ defmodule Coverex.Task do
       File.write("#{output}/modules.html", content)
     end
 
+    def puts_module_overview(modules) do
+      # mods = Enum.map(modules, fn({mod, v}) -> {module_link(mod), v} end)
+      content = overview_text_template(modules)
+      IO.puts content
+    end
+
     def write_function_overview(functions, output) do
       funs = Enum.map(functions, fn({{m,f,a}, v}) -> {module_link(m, f, a), v} end)
       content = overview_template("Functions", funs)
@@ -166,6 +174,8 @@ defmodule Coverex.Task do
 
     ## Generate templating functions via EEx, borrowd from ex_doc
     templates = [
+      overview_text_template: [:entries],
+      overview_entry_text_template: [:entry, :cov, :uncov, :ratio],
       overview_template: [:title, :entries],
       overview_entry_template: [:entry, :cov, :uncov, :ratio],
       source_template: [:title, :lines],
