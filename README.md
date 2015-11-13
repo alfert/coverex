@@ -18,18 +18,24 @@ as part of the regular project settings. In addition to that, you need to add Co
 to the dependencies of your project. Coverex is available via `hex.pm`, so you need only to 
 add this line to the dependencies in your `mix.exs` file: 
 
-	{:coverex, "~> 1.4.1", only: :test}
+	{:coverex, "~> 1.4.7", only: :test}
 
 For debugging purposes, the log level can be set as addition to the `tool` option. The default
 value is `:error`. To set the log level to `:debug` you use this line in your `mix.exs` file: 
 
 	test_coverage: [tool: Coverex.Task, log: :debug]
 
-The usual log levels of `Logger` application of Elixir are available. 
+The usual log levels of the `Logger` application of Elixir are available. 
 
 If you set the flag `coveralls: true` and you are running on `travis-ci`, the coverage information are sent to http://coveralls.io . An example configuration would be
 
 	test_coverage: [tool: Coverex.Task, coveralls: true]
+
+
+Since `coverex 1.4.7`, a summary on the module level is printed on the console. You can switch this off by setting the option `console_log` to `false`.
+
+	test_coverage: [tool: Coverex.Task, console_log: false]
+
 
 ## Running Coverex
 
