@@ -38,7 +38,9 @@ defmodule Coverex.Task do
         write_function_overview(funcs, output)
         generate_assets(output)
         # Text overview output
-        puts_module_overview(mods)
+        if Keyword.get(opts, :console_log, true) do
+          puts_module_overview(mods)
+        end
         # ask for coveralls option
         if (running_travis?() and post_to_coveralls?(opts)) do
           post_coveralls(:cover.modules, output, travis_job_id())
