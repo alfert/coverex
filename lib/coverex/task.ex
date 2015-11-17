@@ -33,11 +33,16 @@ defmodule Coverex.Task do
         Application.ensure_started(:logger)
         Logger.configure(level: Keyword.get(opts, :log, :error))
         File.mkdir_p!(output)
-        Enum.each :cover.modules, fn(mod) ->
+
+        # determine all modules to analyze 
+        all_modules = :cover.modules 
+          |> filter_modules Keyword.get(opts, :ignore_modules, [])
+
+        Enum.each all_modules, fn(mod) ->
           # :cover.analyse_to_file(mod, '#{output}/#{mod}.1.html', [:html])
           write_html_file(mod, output)
         end
-        {mods, funcs} = coverage_data()
+        {mods, funcs} = coverage_data(all_modules)
         write_module_overview(mods, output)
         write_function_overview(funcs, output)
         generate_assets(output)
@@ -52,6 +57,14 @@ defmodule Coverex.Task do
       end
     end
     
+    def filter_modules(all_modules, ignore_list) do
+      all_modules 
+        |> Enum.reject fn m -> 
+            ignore_list |> Enum.member? m 
+          end
+    end
+
+
     @doc "is post to coveralls requested?"
     def post_to_coveralls?(opts) do
       Keyword.get(opts, :coveralls, false)
@@ -166,13 +179,13 @@ defmodule Coverex.Task do
     The `mf` data is list of pairs: `{{m, f, a}, {no of covered lines, no of uncovered lines}}`
 
     """
-    @spec coverage_data() :: {mod_cover, fun_cover}
-    def coverage_data() do
-      modules = Enum.map(:cover.modules, fn(mod) ->
+    @spec coverage_data([atom]) :: {mod_cover, fun_cover}
+    def coverage_data(all_modules) do
+      modules = Enum.map(all_modules, fn(mod) ->
         {:ok, {m, {cov, noncov}}} = :cover.analyse(mod, :coverage, :module) 
         {m, {cov, noncov}}
       end) |> Enum.sort
-      mfunc = Enum.flat_map(:cover.modules, fn(mod) ->
+      mfunc = Enum.flat_map(all_modules, fn(mod) ->
         {:ok, funcs} = :cover.analyse(mod, :coverage, :function)
         funcs
       end) |> Enum.sort
