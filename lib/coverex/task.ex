@@ -3,8 +3,8 @@ defmodule Coverex.Task do
 
     require Logger
 
-    @type mod_cover :: [{String.t, {int, int}}]
-    @type fun_cover :: [{mfa, {int, int}}]
+    @type mod_cover :: [{String.t, {integer, integer}}]
+    @type fun_cover :: [{mfa, {integer, integer}}]
 
     @doc """
     Starts the `Coverex` coverage data generation. An additional option
