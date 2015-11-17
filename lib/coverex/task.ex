@@ -2,6 +2,10 @@ defmodule Coverex.Task do
     require EEx
 
     require Logger
+
+    @type mod_cover :: [{String.t, {int, int}}]
+    @type fun_cover :: [{mfa, {int, int}}]
+
     @doc """
     Starts the `Coverex` coverage data generation. An additional option
     is 
@@ -162,6 +166,7 @@ defmodule Coverex.Task do
     The `mf` data is list of pairs: `{{m, f, a}, {no of covered lines, no of uncovered lines}}`
 
     """
+    @spec coverage_data() :: {mod_cover, fun_cover}
     def coverage_data() do
       modules = Enum.map(:cover.modules, fn(mod) ->
         {:ok, {m, {cov, noncov}}} = :cover.analyse(mod, :coverage, :module) 
