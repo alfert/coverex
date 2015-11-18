@@ -36,6 +36,13 @@ Since `coverex 1.4.7`, a summary on the module level is printed on the console. 
 
 	test_coverage: [tool: Coverex.Task, console_log: false]
 
+If you want to ignore some of the modules to appear in the coverage reports, e.g 
+because they are generated automatically and therefore often needs no test coverage, 
+you can do this since `coverex 1.4.8`. Use the option `ignore_modules` and assign 
+to it a list of module names to ignore. 
+
+	test_coverage: [tool: Coverex.Task, ignore_modules: [Database, Database.User]]
+
 
 ## Running Coverex
 
