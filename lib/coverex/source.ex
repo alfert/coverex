@@ -111,7 +111,7 @@ defmodule Coverex.Source do
 	end
 	def generate_lines(cover, mod_entry) do
 		lines_cover = cover |> Enum.map(fn({{_mod, line_nr}, count}) -> 
-			{line_nr, {count, nil}} end) |> Enum.into %{}
+			{line_nr, {count, nil}} end) |> Enum.into(%{})
 		lines_anchors = mod_entry|> Enum.map(fn({sym, line_nr}) -> 
 			{line_nr, {nil, Coverex.Task.module_anchor(sym)}} end)
 		_lines = Dict.merge(lines_cover, lines_anchors, fn(_k, {c, _}, {_, a}) -> {c, a} end)		
@@ -190,7 +190,7 @@ defmodule Coverex.Source do
 	def alias_mod(mod) when is_atom(mod) do
 		mod |> Atom.to_string|> String.split(".") |> 
 			Enum.drop(1) |> # first element contains "Elixir" which is not needed here!
-			Enum.map &String.to_atom/1 
+			Enum.map(&String.to_atom/1) 
 	end
 	
 	@doc "Returns the atom module name based on the (reversed) alias list"
@@ -211,7 +211,7 @@ defmodule Coverex.Source do
 
 	@spec get_source_path(atom) :: {atom, binary}
 	def get_source_path(mod) when is_atom(mod) do
-		get_compile_info(mod) |> Keyword.get :source
+		get_compile_info(mod) |> Keyword.get(:source)
 	end
 	
 	@spec get_compile_info(atom) :: [{atom, term}]
