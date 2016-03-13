@@ -8,12 +8,12 @@ defmodule Coverex.Task do
 
     @doc """
     Starts the `Coverex` coverage data generation. An additional option
-    is 
+    is
 
         log: :error
 
     which sets the log-level of the Elixir Logger application. Default value
-    is `:error`. For debugging purposes, it can be set to :debug. In this case, 
+    is `:error`. For debugging purposes, it can be set to :debug. In this case,
     the output is quite noisy...
     """
     def start(compile_path, opts) do
@@ -25,8 +25,8 @@ defmodule Coverex.Task do
 
       if :application.get_env(:cover, :started) != {:ok, true} do
         :application.set_env(:cover, :started, true)
-      end        
-        
+      end
+
       output = opts[:output]
       fn() ->
         Mix.shell.info "\nGenerating cover results ... "
@@ -34,9 +34,9 @@ defmodule Coverex.Task do
         Logger.configure(level: Keyword.get(opts, :log, :error))
         File.mkdir_p!(output)
 
-        # determine all modules to analyze 
-        all_modules = :cover.modules 
-          |> filter_modules Keyword.get(opts, :ignore_modules, [])
+        # determine all modules to analyze
+        all_modules = :cover.modules
+          |> filter_modules(Keyword.get(opts, :ignore_modules, []))
 
         Enum.each all_modules, fn(mod) ->
           # :cover.analyse_to_file(mod, '#{output}/#{mod}.1.html', [:html])
@@ -56,23 +56,22 @@ defmodule Coverex.Task do
         end
       end
     end
-    
-    def filter_modules(all_modules, ignore_list) do
-      all_modules 
-        |> Enum.reject fn m -> 
-            ignore_list |> Enum.member? m 
-          end
-    end
 
+    def filter_modules(all_modules, ignore_list) do
+      all_modules
+        |> Enum.reject(fn m ->
+            ignore_list |> Enum.member?(m)
+          end)
+    end
 
     @doc "is post to coveralls requested?"
     def post_to_coveralls?(opts) do
       Keyword.get(opts, :coveralls, false)
     end
-    
+
     @spec running_travis?(%{String.t => String.t}) :: String.t
     def running_travis?(env \\ System.get_env()) do
-      case env["TRAVIS"] do 
+      case env["TRAVIS"] do
         "true" -> true
         _ -> false
       end
@@ -81,7 +80,7 @@ defmodule Coverex.Task do
     @doc "gets the travis job id out of the environment"
     @spec travis_job_id(%{String.t => String.t}) :: String.t
     def travis_job_id(env \\ System.get_env()) do
-      env["TRAVIS_JOB_ID"]      
+      env["TRAVIS_JOB_ID"]
     end
 
     @spec post_coveralls([atom], String.t, String.t, String.t) :: :ok
@@ -101,9 +100,9 @@ defmodule Coverex.Task do
     end
 
     def send_http(url, filename, _body) do
-      HTTPoison.post(url, 
+      HTTPoison.post(url,
         {:multipart, [
-          {:file, filename, 
+          {:file, filename,
             {"form-data", [{"name", "json_file"}, {"filename", filename}]},
             [{"Content-Type", "application/json"}]
           }
@@ -113,7 +112,7 @@ defmodule Coverex.Task do
     def write_html_file(mod, output) do
       {entries, source} = Coverex.Source.analyze_to_html(mod)
       {:ok, s} = StringIO.open(source)
-      lines = Stream.zip(numbers, IO.stream(s, :line)) |> Stream.map(fn({n, line}) -> 
+      lines = Stream.zip(numbers, IO.stream(s, :line)) |> Stream.map(fn({n, line}) ->
         case Map.get(entries, n, nil) do
           {count, anchor} -> {n, {encode_html(line), count, anchor}}
           nil -> {n, {encode_html(line), nil, nil}}
@@ -124,7 +123,7 @@ defmodule Coverex.Task do
       content = source_template(mod, lines)
       File.write("#{output}/#{mod}.html", content)
     end
-    
+
     # all positive numbers
     defp numbers(), do: Stream.iterate(1, &(&1+1))
 
@@ -133,13 +132,13 @@ defmodule Coverex.Task do
     def encode_html(s, acc) do
       {first, rest} = String.next_grapheme(s)
       case first do
-        ">" -> encode_html(rest, acc <> "&gt;") 
+        ">" -> encode_html(rest, acc <> "&gt;")
         "<" -> encode_html(rest, acc <> "&lt;")
         "&" -> encode_html(rest, acc <> "&amp;")
         nil -> acc
         any -> encode_html(rest, acc <> any)
       end
-    end 
+    end
 
     def write_module_overview(modules, output) do
       mods = Enum.map(modules, fn({mod, v}) -> {module_link(mod), v} end)
@@ -158,7 +157,7 @@ defmodule Coverex.Task do
       content = overview_template("Functions", funs)
       File.write("#{output}/functions.html", content)
     end
-    
+
     defp module_link(mod), do: "<a href=\"#{mod}.html\">#{mod}</a>"
     defp module_link(m, f, a), do: "<a href=\"#{m}.html##{m}.#{f}.#{a}\">#{m}.#{f}/#{a}</a>"
 
@@ -170,11 +169,11 @@ defmodule Coverex.Task do
     def cover_class(_n), do: "covered"
 
     @doc """
-    Returns detailed coverage data `{mod, mf}` for all modules from the `:cover` application. 
+    Returns detailed coverage data `{mod, mf}` for all modules from the `:cover` application.
 
     ## The `mod` data
     The `mod` data is a list of pairs: `{modulename, {no of covered lines, no of uncovered lines}}`
-  
+
     ## The `mf` data
     The `mf` data is list of pairs: `{{m, f, a}, {no of covered lines, no of uncovered lines}}`
 
@@ -182,7 +181,7 @@ defmodule Coverex.Task do
     @spec coverage_data([atom]) :: {mod_cover, fun_cover}
     def coverage_data(all_modules) do
       modules = Enum.map(all_modules, fn(mod) ->
-        {:ok, {m, {cov, noncov}}} = :cover.analyse(mod, :coverage, :module) 
+        {:ok, {m, {cov, noncov}}} = :cover.analyse(mod, :coverage, :module)
         {m, {cov, noncov}}
       end) |> Enum.sort
       mfunc = Enum.flat_map(all_modules, fn(mod) ->
