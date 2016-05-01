@@ -1,5 +1,5 @@
 defmodule CoverexSourceTest do
-	
+
 	use ExUnit.Case
   require Logger
 
@@ -54,24 +54,24 @@ defmodule CoverexSourceTest do
       {:ok, mod} = generate_mod(Map.keys(ms), funs) |> Code.string_to_quoted
       Logger.debug("mod = #{inspect mod}")
       all_mods = Coverex.Source.find_all_mods_and_funs(mod)
-      Logger.debug("all_mods = #{inspect all_mods}") 
+      Logger.debug("all_mods = #{inspect all_mods}")
 
-      ms |> Dict.values |> Enum.each fn(mod_name) ->
+      ms |> Dict.values |> Enum.each(fn(mod_name) ->
         assert %{} = all_mods[mod_name]
-        assert is_integer(all_mods[mod_name][mod_name]) 
-        funs |> # Enum.map(&String.to_atom/1) |> 
-          Enum.each fn({_m, f, a}) ->
+        assert is_integer(all_mods[mod_name][mod_name])
+        funs |> # Enum.map(&String.to_atom/1) |>
+          Enum.each(fn({_m, f, a}) ->
             # IO.puts "f = #{inspect f}"
             assert is_integer(all_mods[mod_name][{mod_name, f, a}])
-          end
-      end
+          end)
+      end)
     end
 
     test "generate line entries" do
-      m = [{X, 1}, 
-        {{X, :f, 2}, 5}, 
-        {{X, :g, 0}, 9}] |> 
-          Enum.into %{}
+      m = [{X, 1},
+        {{X, :f, 2}, 5},
+        {{X, :g, 0}, 9}] |>
+          Enum.into(%{})
       cover = [{{X, 5}, 1}, {{X, 6}, 1}, {{X, 7}, 1}, {{X, 9}, 3}]
       lines = Coverex.Source.generate_lines(cover, m)
 
@@ -81,7 +81,7 @@ defmodule CoverexSourceTest do
       assert {1, f_link} == lines[5]
       assert {1, nil} = lines[6]
     end
-    
+
     test "find Protocols and implementations" do
       src = """
       defprotocol Disposable do
@@ -95,7 +95,7 @@ defmodule CoverexSourceTest do
       {:ok, mods} = src |> Code.string_to_quoted
       # Logger.debug("mods: #{inspect mods}")
       all_mods = Coverex.Source.find_all_mods_and_funs(mods)
-      # Logger.debug("all mods: #{inspect all_mods}") 
+      # Logger.debug("all mods: #{inspect all_mods}")
 
       assert %{} = all_mods[Disposable]
       assert %{} = all_mods[Disposable.Function]
@@ -114,7 +114,7 @@ defmodule CoverexSourceTest do
       {:ok, mods} = src |> Code.string_to_quoted
       Logger.debug("mods: #{inspect mods}")
       all_mods = Coverex.Source.find_all_mods_and_funs(mods)
-      Logger.debug("all mods: #{inspect all_mods}") 
+      Logger.debug("all mods: #{inspect all_mods}")
 
       refute :erlang.is_map(all_mods[X])
       assert %{} = all_mods[X.Y]
@@ -125,7 +125,7 @@ defmodule CoverexSourceTest do
     test "nested modules with structs and types" do
       src = """
       defmodule X.Y do
-  
+
         @type signal :: Signal.t(any) # {:Signal, reference, pid, any}
         @type signal(a) :: Signal.t(a) # {:Signal, reference, pid, a}
         # @type sig_func(a, b) :: ((a, any) -> ({:reply, b, any} | {:noreply, any})) when a: var, b: var
@@ -134,10 +134,10 @@ defmodule CoverexSourceTest do
         defmodule Signal do
           @derive Access
           defstruct id: nil, # id of the invividual signal
-            source: nil, # pid of the source 
+            source: nil, # pid of the source
             value: nil # current value of the signal
 
-          @type t(a) :: %__MODULE__{id: nil|reference, source: nil|pid, value: nil | a} 
+          @type t(a) :: %__MODULE__{id: nil|reference, source: nil|pid, value: nil | a}
         end
         def f(x), do: x+1
       end
@@ -145,7 +145,7 @@ defmodule CoverexSourceTest do
       {:ok, mods} = src |> Code.string_to_quoted
       Logger.debug("mods: #{inspect mods}")
       all_mods = Coverex.Source.find_all_mods_and_funs(mods)
-      Logger.debug("all mods: #{inspect all_mods}") 
+      Logger.debug("all mods: #{inspect all_mods}")
 
       assert %{} = all_mods[X.Y]
       assert %{} = all_mods[X.Y.Signal]
@@ -160,7 +160,7 @@ defmodule CoverexSourceTest do
     end
 
     test "Merge coverage data of a set of files" do
-      mod = [a: [{2, nil}, {3, 1}, {4, 5}, {5, 2}], 
+      mod = [a: [{2, nil}, {3, 1}, {4, 5}, {5, 2}],
              b: [{8, 4}, {9, 2}, {10, 1}]
           ]
       merged = Coverex.Source.merge_coverage(mod)
@@ -178,14 +178,14 @@ defmodule CoverexSourceTest do
   		"""
   		defmodule #{mod} do
 		""" <> fs <>
-		"""  			
+		"""
   		end
   		"""
   	end
   	def generate_mod(mods, funs) when is_list(mods) do
   		mods |> Enum.reduce("", fn(m, acc) -> generate_mod(m, funs) <> acc end)
   	end
-  	
+
     defp make_fun({_, f, 0}), do: "def #{f}(), do: :funny0\n"
     defp make_fun({_, f, args}), do: "def #{f}(#{1..args |> Enum.map_join(",", &("args#{&1}"))}), do: :funny#{args}\n"
     defp make_fun(f), do: "def #{f}(), do: :funny_0\n"
