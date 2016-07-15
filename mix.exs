@@ -7,14 +7,14 @@ defmodule Coverex.Mixfile do
     [app: :coverex,
      version: "1.4.10-dev",
      elixir: ">= 1.0.0",
-     package: package,
+     package: package(),
      name: "Coverex - Coverage Reports for Elixir",
      source_url: "https://github.com/alfert/coverex",
      homepage_url: "https://github.com/alfert/coverex",
      docs: [readme: "README.md"],
-     description: description,
+     description: description(),
      test_coverage: [tool: Coverex.Task, coveralls: true, ignore_modules: []],
-     deps: deps]
+     deps: deps()]
   end
 
   # Configuration for the OTP application

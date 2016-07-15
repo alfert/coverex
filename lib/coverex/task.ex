@@ -112,7 +112,7 @@ defmodule Coverex.Task do
     def write_html_file(mod, output) do
       {entries, source} = Coverex.Source.analyze_to_html(mod)
       {:ok, s} = StringIO.open(source)
-      lines = Stream.zip(numbers, IO.stream(s, :line)) |> Stream.map(fn({n, line}) ->
+      lines = Stream.zip(numbers(), IO.stream(s, :line)) |> Stream.map(fn({n, line}) ->
         case Map.get(entries, n, nil) do
           {count, anchor} -> {n, {encode_html(line), count, anchor}}
           nil -> {n, {encode_html(line), nil, nil}}
@@ -207,7 +207,7 @@ defmodule Coverex.Task do
 
     # generates asset files
     defp generate_assets(output) do
-      Enum.each assets, fn({ pattern, dir }) ->
+      Enum.each assets(), fn({ pattern, dir }) ->
         output = "#{output}/#{dir}"
         File.mkdir output
 
