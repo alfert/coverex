@@ -170,6 +170,8 @@ defmodule Coverex.Task do
 
     @doc """
     Returns detailed coverage data `{mod, mf}` for all modules from the `:cover` application.
+    The special functions `__info__` and `__struct__` are filtered out of
+    the list of covered functions.
 
     ## The `mod` data
     The `mod` data is a list of pairs: `{modulename, {no of covered lines, no of uncovered lines}}`
@@ -187,7 +189,11 @@ defmodule Coverex.Task do
       mfunc = Enum.flat_map(all_modules, fn(mod) ->
         {:ok, funcs} = :cover.analyse(mod, :coverage, :function)
         funcs
-      end) |> Enum.sort
+      end)
+      |> Enum.reject(fn {{_m, :__info__, _}, _} -> true
+                        {{_m, :__struct__, _}, _} -> true
+                        _ -> false end) 
+      |> Enum.sort
       {modules, mfunc}
     end
 
