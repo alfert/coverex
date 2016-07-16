@@ -18,7 +18,7 @@ as part of the regular project settings. In addition to that, you need to add Co
 to the dependencies of your project. Coverex is available via `hex.pm`, so you need only to
 add this line to the dependencies in your `mix.exs` file:
 
-	{:coverex, "~> 1.4.9", only: :test}
+	{:coverex, "~> 1.4.10", only: :test}
 
 For debugging purposes, the log level can be set as addition to the `tool` option. The default
 value is `:error`. To set the log level to `:debug` you use this line in your `mix.exs` file:
@@ -43,6 +43,9 @@ to it a list of module names to ignore.
 
 	test_coverage: [tool: Coverex.Task, ignore_modules: [Database, Database.User]]
 
+Since `coverex 1.4.10` the from the Elixir compiler automatically generated
+functions `__info__` and `__struct__` are removed from the list of covered
+functions. It simply makes no sense to include them into the list (see also #24).
 
 ## Running Coverex
 
