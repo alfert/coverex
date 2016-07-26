@@ -86,7 +86,7 @@ defmodule Coverex.Task do
     @spec post_coveralls([atom], String.t, String.t, String.t) :: :ok
     def post_coveralls(mods, output, job_id, url \\ "https://coveralls.io/api/v1/jobs") do
       IO.puts "post to coveralls"
-      Application.ensure_all_started(:httpoison)
+      Application.ensure_all_started(:hackney)
       source = Coverex.Source.coveralls_data(mods)
       body = Poison.encode!(%{
         :service_name => "travis-ci",
@@ -100,13 +100,14 @@ defmodule Coverex.Task do
     end
 
     def send_http(url, filename, _body) do
-      HTTPoison.post(url,
+      :hackney.post(url, [],
         {:multipart, [
           {:file, filename,
             {"form-data", [{"name", "json_file"}, {"filename", filename}]},
             [{"Content-Type", "application/json"}]
           }
-        ]})
+        ]},
+        [:with_body])
     end
 
     def write_html_file(mod, output) do
