@@ -191,9 +191,10 @@ defmodule Coverex.Task do
         {:ok, funcs} = :cover.analyse(mod, :coverage, :function)
         funcs
       end)
-      |> Enum.reject(fn {{_m, :__info__, _}, _} -> true
-                        {{_m, :__struct__, _}, _} -> true
-                        _ -> false end) 
+      |> Enum.reject(fn {{_m, f, _}, _}
+          when f in [:__info__, :__struct__,
+                     :__behaviour_info__, :__protocol__]-> true
+                        _ -> false end)
       |> Enum.sort
       {modules, mfunc}
     end
