@@ -90,7 +90,10 @@ defmodule Coverex.Source do
 	
 	@spec lines_to_list(line_entries) :: [pos_integer | nil]
 	def lines_to_list(lines) do
-		lines |> Enum.map(fn({_l, count}) -> count end)
+		lines
+		|> Enum.sort(fn({l1, _}, {l2, _}) -> l1 <= l2 end)
+		|> Enum.drop(1) # drop the mythical line 0
+		|> Enum.map(fn({_l, count}) -> count end)
 	end
 	
 
