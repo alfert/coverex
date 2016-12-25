@@ -65,6 +65,7 @@ defmodule Coverex.Task do
     end
 
     @doc "is post to coveralls requested?"
+    def post_to_coveralls?(nil), do: post_to_coveralls?([])
     def post_to_coveralls?(opts) do
       Keyword.get(opts, :coveralls, false)
     end
