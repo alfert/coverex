@@ -43,12 +43,14 @@ defmodule Coverex.Task do
           write_html_file(mod, output)
         end
         {mods, funcs} = coverage_data(all_modules)
-        write_module_overview(mods, output)
+        {mods_sum, total} = calculate_summary(mods)
+
+        write_module_overview(mods_sum, total, output)
         write_function_overview(funcs, output)
         generate_assets(output)
         # Text overview output
         if Keyword.get(opts, :console_log, true) do
-          puts_module_overview(mods)
+          puts_module_overview(mods_sum, total)
         end
         # ask for coveralls option
         if (running_travis?() and post_to_coveralls?(opts)) do
@@ -142,21 +144,24 @@ defmodule Coverex.Task do
       end
     end
 
-    def write_module_overview(modules, output) do
+    def write_module_overview(modules, total, output) do
       mods = Enum.map(modules, fn({mod, v}) -> {module_link(mod), v} end)
-      content = overview_template("Modules", mods)
+      content = overview_template("Modules", mods, total)
       File.write("#{output}/modules.html", content)
     end
 
-    def puts_module_overview(modules) do
+    def puts_module_overview(modules_summary, total) do
       # mods = Enum.map(modules, fn({mod, v}) -> {module_link(mod), v} end)
-      content = overview_text_template(modules)
+      content = overview_text_template(modules_summary, total)
+
       IO.puts content
     end
 
     def write_function_overview(functions, output) do
-      funs = Enum.map(functions, fn({{m,f,a}, v}) -> {module_link(m, f, a), v} end)
-      content = overview_template("Functions", funs)
+      {fun_sum, total} = calculate_summary(functions)
+
+      funs = Enum.map(fun_sum, fn({{m,f,a}, v}) -> {module_link(m, f, a), v} end)
+      content = overview_template("Functions", funs, total)
       File.write("#{output}/functions.html", content)
     end
 
@@ -202,9 +207,9 @@ defmodule Coverex.Task do
 
     ## Generate templating functions via EEx, borrowd from ex_doc
     templates = [
-      overview_text_template: [:entries],
+      overview_text_template: [:entries, :total],
       overview_entry_text_template: [:entry, :cov, :uncov, :ratio],
-      overview_template: [:title, :entries],
+      overview_template: [:title, :entries, :total],
       overview_entry_template: [:entry, :cov, :uncov, :ratio],
       source_template: [:title, :lines],
       source_line_template: [:number, :count, :source, :anchor]
@@ -235,4 +240,23 @@ defmodule Coverex.Task do
     end
     defp templates_path(other), do: Path.expand("templates/#{other}", __DIR__)
 
+    # returns the average percentage, the amount of covered, the amount of uncovered
+    defp calculate_summary(modules) do
+      {m, {t_p, t_c, t_u}} = Enum.map_reduce(modules, {0, 0, 0}, fn({e, {c, u}}, acc) ->
+        {t_percent, t_covered, t_uncovered} = acc
+        p = (c / (c + u) * 100) |>  Float.round(1)
+
+        {{e, {p, c, u}}, {t_percent + p, t_covered + c, t_uncovered + u}}
+      end)
+
+      if t_p > 0 do
+        t_p = t_p
+        |> (&//2).(modules |> Enum.count)
+        |> Float.round(1)
+
+        {m, {t_p, t_c, t_u}}
+      else
+        {m, {t_p, t_c, t_u}}
+      end
+    end
 end
