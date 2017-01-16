@@ -20,18 +20,19 @@
           </tr>
         </thead>
         <tbody>
-          <%= for {e, {c, u}} <- entries, do: overview_entry_template(e, c, u, (1.0 * c/(c + u)*100)) %>
+          <%= for {e, {p, c, u}} <- entries, do: overview_entry_template(e, c, u, p) %>
+          <%= {p, c, u} = total; overview_entry_template("Total", c, u, p) %>
         </tbody>
       </table>
     </div>
     <script type="text/javascript">
-    $(document).ready(function() { 
-      // call the tablesorter plugin 
-      $("table").tablesorter({ 
-          // sort on the first column, order asc 
-          sortList: [[0,0]] 
-      }); 
-    }); 
+    $(document).ready(function() {
+      // call the tablesorter plugin
+      $("table").tablesorter({
+          // sort on the first column, order asc
+          sortList: [[0,0]]
+      });
+    });
     </script>
   </body>
 </html>
