@@ -32,7 +32,7 @@ defmodule Coverex.Mixfile do
   defp deps do
     [
       {:hackney, "~> 1.5"},
-      {:poison, "~> 1.5 or ~> 2.0"},
+      {:poison, "~> 1.5 or ~> 2.0 or ~> 3.0"},
       {:earmark, "~> 1.0", only: :dev},
       {:ex_doc, "~> 0.13", only: :dev},
       {:dialyze, "~> 0.2", only: :dev}
