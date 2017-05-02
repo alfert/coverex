@@ -40,8 +40,8 @@ table th {
 /* Coverage sources */
 table.source td.elixir {
   font-size: 12px;
-  border: 0px; // solid #dddddd;
-  padding: 0px; // 0.4em 1em 0.4em 0.4em;
+  border: 0px; /* solid #dddddd; */
+  padding: 0px; /* 0.4em 1em 0.4em 0.4em; */
   margin: 0px;
 }
 
@@ -80,4 +80,3 @@ pre.not_covered {
 pre.irrelevant {
   background: white;
 }
-

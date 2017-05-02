@@ -1,8 +1,9 @@
-<tr class="source"><td class="num"> <%= number %></td> <td class="num"> <%= count %></td> 
-<td class="elixir">
-<%= if anchor != nil do %>
-	<%= anchor%>
-<%= end %>
-<pre class="<%= cover_class(count) %>"> <%= source %></pre>
-</td>
-</tr> 
+<tr class="source"><td class="num"> <%= number %></td>
+  <td class="num"><%= count %></td>
+  <td class="elixir">
+    <%= if anchor != nil do %>
+      <%= anchor %>
+    <%= end %>
+    <pre class="<%= cover_class(count) %>"><%= source %></pre>
+  </td>
+</tr>
