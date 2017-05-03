@@ -55,5 +55,4 @@ defmodule Coverex.Mixfile do
      links: %{"GitHub" => "https://github.com/alfert/coverex"}
     ]
   end
-
 end

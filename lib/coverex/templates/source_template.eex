@@ -18,17 +18,10 @@
           </tr>
         </thead>
         <tbody>
-          <%= for {nr, {source, count, anchor}} <- lines, do: source_line_template(nr, count, source, anchor) %>
+          <%= for {nr, {source, count, anchor}} <- lines,
+                do: source_line_template(nr, count, source, anchor) %>
         </tbody>
       </table>
-
-    
-    <!-- ein paar Ideen: 
-    	* Tabelle explizit machen mit sehr kleinen Größen
-    	* spezielle Formatierungen (Keywords, ..) mit spans machen.
-    	* Beispiel: https://coveralls.io/files/233825459
-    -->
-
     </div>
   </body>
 </html>

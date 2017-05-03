@@ -1,8 +1,8 @@
 Coverage Report
 ---------------
 Ratio  Covered  Uncovered  Module
-<%= for {e, {p, c, u}} <- entries, do:
-  overview_entry_text_template(e, "#{c}", "#{u}", "#{p}") %>
+<%= for {e, {p, c, u}} <- entries,
+      do: overview_entry_text_template(e, "#{c}", "#{u}", "#{p}") %>
 --------------
 Total
-<%= {p,c,u} = total;  overview_entry_text_template("", "#{c}", "#{u}", "#{p}") %>
+<%= {p, c, u} = total; overview_entry_text_template("", "#{c}", "#{u}", "#{p}") %>
