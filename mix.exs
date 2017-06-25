@@ -11,7 +11,7 @@ defmodule Coverex.Mixfile do
      name: "Coverex - Coverage Reports for Elixir",
      source_url: "https://github.com/alfert/coverex",
      homepage_url: "https://github.com/alfert/coverex",
-     docs: [readme: "README.md"],
+     docs: [readme: "README.md", extra: "CHANGELOG.md"],
      description: description(),
      test_coverage: [tool: Coverex.Task, coveralls: true, ignore_modules: []],
      deps: deps()]
@@ -52,7 +52,8 @@ defmodule Coverex.Mixfile do
   defp package do
     [maintainers: ["Klaus Alfert"],
      licenses: ["Apache 2.0"],
-     links: %{"GitHub" => "https://github.com/alfert/coverex"}
+     links: %{"GitHub" => "https://github.com/alfert/coverex"},
+     files: ["README.md", "CHANGELOG.md", "LICENSE"]
     ]
   end
 end
