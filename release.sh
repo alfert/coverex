@@ -3,7 +3,7 @@
 set -x
 
 # old is always with -dev
-old="1.4.13"
+old="1.4.14"
 new="1.4.14-dev"
 # do not set any variables beyond this line
 old_version="$old-dev"
@@ -32,7 +32,7 @@ git commit -m "bump version to $release_version" mix.exs
 git tag -a -m "new release version v$release_version" v$release_version
 echo "updated mix file is committed and tagged with v$release_version"
 
-# Upload to Hex.PM (both package and docs) 
+# Upload to Hex.PM (both package and docs)
 echo "Publish now to Hex"
 mix hex.publish
 
