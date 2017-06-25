@@ -64,6 +64,12 @@ defmodule Coverex.Task do
     |> Enum.reject(fn m ->
       ignore_list |> Enum.member?(m)
     end)
+    |> Enum.filter(fn m ->
+      case Atom.to_string(m) do
+        "Elixir." <> _rest -> true
+        _ -> false
+      end
+    end)
   end
 
   @doc "is post to coveralls requested?"
