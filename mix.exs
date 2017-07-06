@@ -52,8 +52,7 @@ defmodule Coverex.Mixfile do
   defp package do
     [maintainers: ["Klaus Alfert"],
      licenses: ["Apache 2.0"],
-     links: %{"GitHub" => "https://github.com/alfert/coverex"},
-     files: ["README.md", "CHANGELOG.md", "LICENSE"]
+     links: %{"GitHub" => "https://github.com/alfert/coverex"}
     ]
   end
 end
