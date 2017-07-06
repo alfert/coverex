@@ -1,5 +1,8 @@
 # Coverex Changelog
 
+## 1.14.15
+* Fixes the broken 1.4.14 package (https://github.com/alfert/coverex/issues/42), found by https://github.com/aseigo
+
 ## 1.4.14
 * [Skip non-Elixir modules](https://github.com/alfert/coverex/pull/41), thanks to https://github.com/reachfh
 * [Fix inconsistent indentation](https://github.com/alfert/coverex/pull/49) thanks to https://github.com/hauleth
