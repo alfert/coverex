@@ -1,6 +1,6 @@
 # Coverex Changelog
 
-## 1.14.15
+## 1.4.15
 * Fixes the broken 1.4.14 package (https://github.com/alfert/coverex/issues/42), found by https://github.com/aseigo
 
 ## 1.4.14
