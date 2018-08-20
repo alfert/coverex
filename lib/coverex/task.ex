@@ -21,7 +21,7 @@ defmodule Coverex.Task do
     Mix.shell.info "compile_path is #{inspect compile_path}"
     Mix.shell.info "Options are: #{inspect opts}"
     :cover.start
-    :cover.compile_beam_directory(compile_path |> to_char_list)
+    :cover.compile_beam_directory(compile_path |> to_charlist)
 
     if :application.get_env(:cover, :started) != {:ok, true} do
       :application.set_env(:cover, :started, true)
@@ -78,7 +78,8 @@ defmodule Coverex.Task do
     Keyword.get(opts, :coveralls, false)
   end
 
-  @spec running_travis?(%{String.t => String.t}) :: String.t
+  @spec running_travis?() :: boolean
+  @spec running_travis?(%{optional(String.t) => String.t}) :: boolean
   def running_travis?(env \\ System.get_env()) do
     case env["TRAVIS"] do
       "true" -> true
@@ -140,13 +141,12 @@ defmodule Coverex.Task do
   def encode_html(s, acc \\ "")
   def encode_html("", acc), do: acc
   def encode_html(s, acc) do
-    {first, rest} = String.next_grapheme(s)
-    case first do
-      ">" -> encode_html(rest, acc <> "&gt;")
-      "<" -> encode_html(rest, acc <> "&lt;")
-      "&" -> encode_html(rest, acc <> "&amp;")
+    case String.next_grapheme(s) do
+      {">", rest} -> encode_html(rest, acc <> "&gt;")
+      {"<", rest} -> encode_html(rest, acc <> "&lt;")
+      {"&", rest} -> encode_html(rest, acc <> "&amp;")
       nil -> acc
-      any -> encode_html(rest, acc <> any)
+      {first, rest} -> encode_html(rest, acc <> first)
     end
   end
 
