@@ -56,7 +56,7 @@ defmodule CoverexSourceTest do
       all_mods = Coverex.Source.find_all_mods_and_funs(mod)
       Logger.debug("all_mods = #{inspect all_mods}")
 
-      ms |> Dict.values |> Enum.each(fn(mod_name) ->
+      ms |> Map.values |> Enum.each(fn(mod_name) ->
         assert %{} = all_mods[mod_name]
         assert is_integer(all_mods[mod_name][mod_name])
         funs |> # Enum.map(&String.to_atom/1) |>
