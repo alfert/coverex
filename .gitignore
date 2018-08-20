@@ -7,3 +7,4 @@ erl_crash.dump
 coveralls.json
 /*.sublime-*
 /coverex-bug-demo
+/.elixir_ls
