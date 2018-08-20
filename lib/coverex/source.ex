@@ -212,7 +212,7 @@ defmodule Coverex.Source do
   end
 
 
-  @spec get_source_path(atom) :: {atom, binary}
+  @spec get_source_path(atom) :: binary
   def get_source_path(mod) when is_atom(mod) do
     get_compile_info(mod) |> Keyword.get(:source)
   end
