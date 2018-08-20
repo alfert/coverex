@@ -1,5 +1,3 @@
-Code.ensure_loaded?(Hex) and Hex.start
-
 defmodule Coverex.Mixfile do
   use Mix.Project
 
