@@ -1,5 +1,9 @@
 # Coverex Changelog
 
+## 1.5.0
+* Moving up to Elixir 1.6 and later
+* [Support Poison 4.0](https://github.com/alfert/coverex/pull/47)
+
 ## 1.4.15
 * Fixes the broken 1.4.14 package (https://github.com/alfert/coverex/issues/42), found by https://github.com/aseigo
 
@@ -10,7 +14,7 @@
 ## 1.4.13
 * [update dependency to accept Poison version 3.0](https://github.com/alfert/coverex/pull/39),
   thanks to https://github.com/carlo-colombo
-* Little changes to the relase process
+* Little changes to the release process
 
 ## 1.4.12
 * [Added totals in output](https://github.com/alfert/coverex/pull/36), thanks to https://github.com/henb

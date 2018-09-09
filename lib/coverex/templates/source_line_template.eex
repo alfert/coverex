@@ -3,7 +3,7 @@
   <td class="elixir">
     <%= if anchor != nil do %>
       <%= anchor %>
-    <%= end %>
+    <% end %>
     <pre class="<%= cover_class(count) %>"><%= source %></pre>
   </td>
 </tr>

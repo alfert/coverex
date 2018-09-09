@@ -1,12 +1,10 @@
-Code.ensure_loaded?(Hex) and Hex.start
-
 defmodule Coverex.Mixfile do
   use Mix.Project
 
   def project do
     [app: :coverex,
-     version: "1.4.16-dev",
-     elixir: ">= 1.0.0",
+     version: "1.5.0-dev",
+     elixir: ">= 1.6.0",
      package: package(),
      name: "Coverex - Coverage Reports for Elixir",
      source_url: "https://github.com/alfert/coverex",
@@ -21,7 +19,7 @@ defmodule Coverex.Mixfile do
   #
   # Type `mix help compile.app` for more information
   def application do
-    [ applications: [:logger, :hackney]]
+    [ extra_applications: [:logger, :hackney]]
   end
 
   # List all dependencies in the format:
@@ -32,10 +30,10 @@ defmodule Coverex.Mixfile do
   defp deps do
     [
       {:hackney, "~> 1.5"},
-      {:poison, "~> 1.5 or ~> 2.0 or ~> 3.0"},
+      {:poison, "~> 3.0 or ~> 3.1 or ~> 4.0"},
       {:earmark, "~> 1.0", only: :dev},
       {:ex_doc, "~> 0.13", only: :dev},
-      {:dialyze, "~> 0.2", only: :dev}
+      {:dialyxir, "~> 1.0.0-rc3", only: [:dev, :test], runtime: false},
     ]
   end
 

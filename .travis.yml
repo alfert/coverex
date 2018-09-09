@@ -1,13 +1,10 @@
 language: elixir
 notifications:
   recipients:
-    - klaus.alfert@googlemail.com
+    - klaus.alfert@gmail.com
 otp_release:
-  - 17.4
+  - 20.0
 elixir:
-  - 1.0.0
-  - 1.0.5
-  - 1.1.0-rc.0
-install:
-  - mix local.hex --force
+  - 1.6.0
+  - 1.7.0
 script: "MIX_ENV=test mix do deps.get, deps.compile, test --cover"

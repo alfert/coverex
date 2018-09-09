@@ -1,1 +1,1 @@
-<%= String.rjust ratio, 5 %>% <%= String.rjust cov, 7 %> <%= String.rjust uncov, 10 %> <%= entry %>
+<%= String.pad_leading ratio, 5 %>% <%= String.pad_leading cov, 7 %> <%= String.pad_leading uncov, 10 %> <%= entry %>

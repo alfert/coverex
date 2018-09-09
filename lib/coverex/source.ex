@@ -113,11 +113,16 @@ defmodule Coverex.Source do
     %{}
   end
   def generate_lines(cover, mod_entry) do
-    lines_cover = cover |> Enum.map(fn({{_mod, line_nr}, count}) ->
-      {line_nr, {count, nil}} end) |> Enum.into(%{})
-    lines_anchors = mod_entry|> Enum.map(fn({sym, line_nr}) ->
+    lines_anchors = mod_entry
+    |> Enum.map(fn({sym, line_nr}) ->
       {line_nr, {nil, Coverex.Task.module_anchor(sym)}} end)
-    _lines = Dict.merge(lines_cover, lines_anchors, fn(_k, {c, _}, {_, a}) -> {c, a} end)
+    |> Enum.into(%{})
+
+    _lines_covered = cover
+    |> Enum.map(fn({{_mod, line_nr}, count}) ->
+      {line_nr, {count, nil}} end)
+    |> Enum.into(%{})
+    |> Map.merge(lines_anchors, fn _k, {c, _}, {_, a} -> {c, a} end)
   end
 
   @doc """
@@ -212,7 +217,7 @@ defmodule Coverex.Source do
   end
 
 
-  @spec get_source_path(atom) :: {atom, binary}
+  @spec get_source_path(atom) :: binary
   def get_source_path(mod) when is_atom(mod) do
     get_compile_info(mod) |> Keyword.get(:source)
   end
