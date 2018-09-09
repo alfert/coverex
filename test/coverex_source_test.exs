@@ -8,8 +8,10 @@ defmodule CoverexSourceTest do
   	test "compile info " do
   		info = Coverex.Source.get_compile_info(@mod)
 
-  		assert is_list(info)
-  		assert Keyword.get(info, :options) == [:debug_info]
+      assert is_list(info)
+      path = Keyword.get(info, :source) |> to_string()
+      assert Path.extname(path) == ".ex"
+      assert Path.basename(path, ".ex") == "source"
   	end
 
   	test "source info" do
