@@ -3,7 +3,7 @@ defmodule Coverex.Mixfile do
 
   def project do
     [app: :coverex,
-     version: "1.5.0-dev",
+     version: "1.5.0",
      elixir: ">= 1.6.0",
      package: package(),
      name: "Coverex - Coverage Reports for Elixir",
