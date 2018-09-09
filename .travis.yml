@@ -3,7 +3,7 @@ notifications:
   recipients:
     - klaus.alfert@gmail.com
 otp_release:
-  - 20
+  - 20.0
 elixir:
   - 1.6.0
   - 1.7.0
