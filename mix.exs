@@ -33,7 +33,7 @@ defmodule Coverex.Mixfile do
       {:poison, "~> 3.0 or ~> 3.1 or ~> 4.0"},
       {:earmark, "~> 1.0", only: :dev},
       {:ex_doc, "~> 0.13", only: :dev},
-      {:dialyxir, "~> 1.0.0-rc3", only: [:dev, :test]},
+      {:dialyxir, "~> 1.0.0-rc3", only: [:dev, :test], runtime: false},
     ]
   end
 
