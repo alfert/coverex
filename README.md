@@ -12,36 +12,47 @@ module and function coverage data, includings links to annotated source code fil
 Coverex is completely configured via `mix.exs` of your project. To enable `Coverex`,
 you add this line to your `mix.exs` file
 
-	test_coverage: [tool: Coverex.Task]
+```elixir
+test_coverage: [tool: Coverex.Task]
+```
 
 as part of the regular project settings. In addition to that, you need to add Coverex
 to the dependencies of your project. Coverex is available via `hex.pm`, so you need only to
 add this line to the dependencies in your `mix.exs` file:
 
-	{:coverex, "~> 1.4.10", only: :test}
+```elixir
+{:coverex, "~> 1.4.10", only: :test}
+```
 
 For debugging purposes, the log level can be set as addition to the `tool` option. The default
 value is `:error`. To set the log level to `:debug` you use this line in your `mix.exs` file:
 
-	test_coverage: [tool: Coverex.Task, log: :debug]
+```elixir
+test_coverage: [tool: Coverex.Task, log: :debug]
+```
 
 The usual log levels of the `Logger` application of Elixir are available.
 
 If you set the flag `coveralls: true` and you are running on `travis-ci`, the coverage information are sent to http://coveralls.io . An example configuration would be
 
-	test_coverage: [tool: Coverex.Task, coveralls: true]
-
+```elixir
+test_coverage: [tool: Coverex.Task, coveralls: true]
+```
 
 Since `coverex 1.4.7`, a summary on the module level is printed on the console. You can switch this off by setting the option `console_log` to `false`.
 
-	test_coverage: [tool: Coverex.Task, console_log: false]
+```elixir
+test_coverage: [tool: Coverex.Task, console_log: false]
+```
 
 If you want to ignore some of the modules to appear in the coverage reports, e.g
 because they are generated automatically and therefore often needs no test coverage,
 you can do this since `coverex 1.4.8`. Use the option `ignore_modules` and assign
 to it a list of module names to ignore.
 
-	test_coverage: [tool: Coverex.Task, ignore_modules: [Database, Database.User]]
+```elixir
+test_coverage: [tool: Coverex.Task, ignore_modules: [Database, Database.User]]
+```
 
 Since `coverex 1.4.10` the from the Elixir compiler automatically generated
 functions `__info__` and `__struct__` are removed from the list of covered
